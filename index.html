@@ -8,7 +8,6 @@
 <meta name="apple-mobile-web-app-title" content="Readiness">
 <meta name="theme-color" content="#1D4E8F">
 <title>Daily Readiness</title>
-
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.png">
 <style>
@@ -44,7 +43,7 @@
     border-top: 1px solid rgba(255,255,255,0.1);
   }
   .tab-btn {
-    flex: 1; padding: 10px 0; font-size: 14px; font-weight: 600;
+    flex: 1; padding: 10px 0; font-size: 13px; font-weight: 600;
     color: rgba(255,255,255,0.55); background: none; border: none;
     border-bottom: 3px solid transparent; cursor: pointer; transition: 0.2s;
   }
@@ -54,7 +53,7 @@
   .tab-content.active { display: block; }
 
   main {
-    padding: 16px 16px calc(var(--safe-bot) + 110px);
+    padding: 16px 16px calc(var(--safe-bot) + 140px);
     max-width: 480px; margin: 0 auto;
   }
 
@@ -65,23 +64,26 @@
   }
   .card-title {
     font-size: 12px; font-weight: 700; color: var(--sub);
-    text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 18px;
+    text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 16px;
   }
+  .card-title span { color: var(--navy); }
 
+  /* Done banners */
   .done-banner {
-    background: #E2EFDA; border: 1.5px solid var(--green);
-    border-radius: var(--rad); padding: 14px 16px;
+    border-radius: var(--rad); padding: 12px 16px;
     text-align: center; margin-bottom: 14px; display: none;
   }
-  .done-banner strong { color: var(--green); font-size: 15px; display: block; }
-  .done-banner span   { color: var(--sub); font-size: 13px; margin-top: 4px; display: block; }
+  .done-banner strong { font-size: 14px; display: block; }
+  .done-banner span   { font-size: 12px; margin-top: 3px; display: block; opacity: 0.8; }
+  .done-morning { background: #E2EFDA; border: 1.5px solid var(--green); color: var(--green); }
+  .done-evening { background: #E8F4FD; border: 1.5px solid var(--navy); color: var(--navy); }
 
   /* Sliders */
-  .question { margin-bottom: 22px; }
+  .question { margin-bottom: 20px; }
   .question:last-of-type { margin-bottom: 0; }
   .q-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
-  .q-label  { font-size: 16px; font-weight: 600; }
-  .q-value  { font-size: 26px; font-weight: 800; min-width: 32px; text-align: right; transition: color 0.15s; }
+  .q-label  { font-size: 15px; font-weight: 600; }
+  .q-value  { font-size: 24px; font-weight: 800; min-width: 32px; text-align: right; transition: color 0.15s; }
   .q-hints  { display: flex; justify-content: space-between; font-size: 11px; color: var(--sub); margin-bottom: 8px; }
 
   input[type=range] {
@@ -106,15 +108,69 @@
   .hooper-box {
     display: flex; align-items: center; justify-content: space-between;
     background: var(--light); border-radius: 12px;
-    padding: 14px 16px; margin-top: 18px;
+    padding: 14px 16px; margin-top: 16px;
     border: 1.5px solid var(--border);
   }
   .hb-left      { font-size: 13px; color: var(--sub); font-weight: 600; }
   .hb-left small{ display: block; font-size: 11px; font-weight: 400; margin-top: 2px; }
-  .hb-score     { font-size: 38px; font-weight: 900; line-height: 1; }
+  .hb-score     { font-size: 36px; font-weight: 900; line-height: 1; }
   .hb-right     { text-align: right; }
-  .hb-status    { font-size: 14px; font-weight: 700; margin-top: 4px; }
+  .hb-status    { font-size: 13px; font-weight: 700; margin-top: 4px; }
 
+  /* Workload session rows */
+  .session-group { margin-bottom: 6px; }
+  .session-label {
+    font-size: 13px; font-weight: 700; color: var(--text);
+    margin-bottom: 6px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .session-au {
+    font-size: 13px; font-weight: 700; color: var(--navy);
+    background: var(--light); padding: 3px 10px; border-radius: 20px;
+  }
+  .session-inputs {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    margin-bottom: 8px;
+  }
+  .input-group label {
+    font-size: 11px; color: var(--sub); font-weight: 600;
+    display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .input-group input {
+    width: 100%; padding: 10px 12px; font-size: 18px; font-weight: 700;
+    border: 2px solid var(--border); border-radius: 10px;
+    background: var(--light); color: var(--text); text-align: center;
+    outline: none; -webkit-appearance: none;
+  }
+  .input-group input:focus { border-color: var(--navy); background: #fff; }
+  .input-group input::placeholder { color: var(--border); font-weight: 400; font-size: 16px; }
+
+  .session-divider {
+    border: none; border-top: 1px dashed var(--border);
+    margin: 12px 0;
+  }
+
+  /* Section label within workload card */
+  .section-lbl {
+    font-size: 11px; font-weight: 700; color: var(--white);
+    text-transform: uppercase; letter-spacing: 0.07em;
+    background: var(--navy); border-radius: 6px;
+    padding: 4px 10px; margin-bottom: 12px; display: inline-block;
+  }
+  .section-lbl.green { background: var(--green); }
+  .section-lbl.amber { background: var(--amber); }
+
+  /* Total AU box */
+  .total-box {
+    background: var(--navy); border-radius: 12px;
+    padding: 14px 16px; margin-top: 16px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .total-box .lbl  { font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 600; }
+  .total-box .lbl small { display: block; font-size: 11px; margin-top: 2px; opacity: 0.6; }
+  .total-box .val  { font-size: 36px; font-weight: 900; color: #fff; }
+
+  /* Notes */
   textarea {
     width: 100%; padding: 12px; font-size: 15px; line-height: 1.5;
     border: 2px solid var(--border); border-radius: 10px;
@@ -123,31 +179,28 @@
   }
   textarea:focus { border-color: var(--navy); background: #fff; }
 
-  /* Sticky bottom — two buttons */
+  /* Sticky bottom */
   .sticky-bottom {
     position: fixed; bottom: 0; left: 0; right: 0;
     padding: 10px 16px calc(var(--safe-bot) + 10px);
     background: var(--white); box-shadow: 0 -1px 12px rgba(0,0,0,0.1);
-    display: flex; flex-direction: column; gap: 8px;
-    max-width: 480px; margin: 0 auto;
   }
-  /* full-width sticky needs left/right reset for centering trick */
-  .sticky-bottom { left: 0; right: 0; }
+  .btn-row { display: flex; flex-direction: column; gap: 8px; max-width: 480px; margin: 0 auto; }
 
   .btn-wa {
-    width: 100%; padding: 16px; font-size: 17px; font-weight: 700;
-    color: #fff; background: var(--wa); border: none; border-radius: var(--rad);
+    width: 100%; padding: 14px; font-size: 16px; font-weight: 700;
+    color: #fff; border: none; border-radius: var(--rad);
     cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
     transition: opacity 0.2s;
   }
   .btn-wa:active { opacity: 0.85; }
-
+  .btn-morning { background: var(--green); }
+  .btn-evening { background: var(--navy); }
   .btn-save {
-    width: 100%; padding: 11px; font-size: 14px; font-weight: 600;
+    width: 100%; padding: 10px; font-size: 13px; font-weight: 600;
     color: var(--sub); background: var(--light); border: 1.5px solid var(--border);
-    border-radius: var(--rad); cursor: pointer; transition: background 0.15s;
+    border-radius: var(--rad); cursor: pointer;
   }
-  .btn-save:active { background: var(--border); }
 
   /* Toast */
   .toast {
@@ -166,25 +219,22 @@
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   }
   .hi-date   { font-size: 12px; color: var(--sub); margin-bottom: 8px; font-weight: 600; }
-  .hi-row    { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-  .hi-score  { font-size: 28px; font-weight: 900; }
+  .hi-row    { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .hi-score  { font-size: 26px; font-weight: 900; }
   .hi-status { font-size: 13px; font-weight: 700; }
-  .hi-detail { font-size: 12px; color: var(--sub); }
-  .hi-notes  { font-size: 13px; color: var(--sub); margin-top: 8px; font-style: italic; }
+  .hi-detail { font-size: 12px; color: var(--sub); margin-bottom: 4px; }
+  .hi-load   { font-size: 13px; font-weight: 700; color: var(--navy); }
+  .hi-notes  { font-size: 12px; color: var(--sub); margin-top: 6px; font-style: italic; }
   .empty-state { text-align: center; color: var(--sub); padding: 50px 20px; font-size: 15px; line-height: 1.8; }
 
   /* Settings */
-  .setting-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 0; border-bottom: 1px solid var(--border);
-  }
+  .setting-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); }
   .setting-row:last-child { border-bottom: none; }
   .setting-lbl { font-size: 15px; font-weight: 600; }
   .setting-sub { font-size: 12px; color: var(--sub); margin-top: 2px; }
   .btn-sm { padding: 8px 16px; font-size: 13px; font-weight: 700; border-radius: 8px; border: none; cursor: pointer; background: var(--navy); color: #fff; }
   .btn-danger { background: var(--red); }
 
-  /* Toggle */
   .toggle { position: relative; width: 50px; height: 28px; cursor: pointer; flex-shrink: 0; }
   .toggle input { opacity: 0; width: 0; height: 0; }
   .tog-track { position: absolute; inset: 0; background: var(--border); border-radius: 28px; transition: 0.3s; }
@@ -202,7 +252,6 @@
   .c-amber { color: var(--amber); }
   .c-red   { color: var(--red);   }
   .c-navy  { color: var(--navy);  }
-  .c-wa    { color: var(--wa);    }
 </style>
 </head>
 <body>
@@ -213,17 +262,18 @@
 </header>
 
 <div class="tab-bar">
-  <button class="tab-btn active" onclick="showTab('log',this)">📋 Today</button>
+  <button class="tab-btn active" onclick="showTab('morning',this)">🌅 Morning</button>
+  <button class="tab-btn"        onclick="showTab('evening',this)">🏃 Workload</button>
   <button class="tab-btn"        onclick="showTab('history',this)">📈 History</button>
   <button class="tab-btn"        onclick="showTab('settings',this)">⚙️ Settings</button>
 </div>
 
-<!-- ══ TODAY ════════════════════════════════════════════════════════════════ -->
-<div id="tab-log" class="tab-content active">
+<!-- ══ MORNING ══════════════════════════════════════════════════════════════ -->
+<div id="tab-morning" class="tab-content active">
 <main>
 
-  <div class="done-banner" id="doneBanner">
-    <strong>✅ Already submitted today</strong>
+  <div class="done-banner done-morning" id="doneMorning">
+    <strong>✅ Morning check sent</strong>
     <span>Resubmit below if you need to update.</span>
   </div>
 
@@ -231,37 +281,25 @@
     <div class="card-title">Hooper Index — 1 = best &nbsp;·&nbsp; 7 = worst</div>
 
     <div class="question">
-      <div class="q-header">
-        <span class="q-label">Sleep Quality</span>
-        <span class="q-value c-navy" id="v-sleep">4</span>
-      </div>
+      <div class="q-header"><span class="q-label">Sleep Quality</span><span class="q-value c-navy" id="v-sleep">4</span></div>
       <div class="q-hints"><span>Very good</span><span>Very bad</span></div>
       <input type="range" min="1" max="7" value="4" id="s-sleep" oninput="slide('sleep',this.value)">
     </div>
 
     <div class="question">
-      <div class="q-header">
-        <span class="q-label">Fatigue</span>
-        <span class="q-value c-navy" id="v-fatigue">4</span>
-      </div>
+      <div class="q-header"><span class="q-label">Fatigue</span><span class="q-value c-navy" id="v-fatigue">4</span></div>
       <div class="q-hints"><span>Not at all</span><span>Extremely</span></div>
       <input type="range" min="1" max="7" value="4" id="s-fatigue" oninput="slide('fatigue',this.value)">
     </div>
 
     <div class="question">
-      <div class="q-header">
-        <span class="q-label">Stress</span>
-        <span class="q-value c-navy" id="v-stress">4</span>
-      </div>
+      <div class="q-header"><span class="q-label">Stress</span><span class="q-value c-navy" id="v-stress">4</span></div>
       <div class="q-hints"><span>Very relaxed</span><span>Extremely stressed</span></div>
       <input type="range" min="1" max="7" value="4" id="s-stress" oninput="slide('stress',this.value)">
     </div>
 
     <div class="question">
-      <div class="q-header">
-        <span class="q-label">Muscle Soreness</span>
-        <span class="q-value c-navy" id="v-soreness">4</span>
-      </div>
+      <div class="q-header"><span class="q-label">Muscle Soreness</span><span class="q-value c-navy" id="v-soreness">4</span></div>
       <div class="q-hints"><span>No soreness</span><span>Extremely sore</span></div>
       <input type="range" min="1" max="7" value="4" id="s-soreness" oninput="slide('soreness',this.value)">
     </div>
@@ -277,29 +315,177 @@
 
   <div class="card">
     <div class="card-title">Notes (optional)</div>
-    <textarea id="notes" rows="3" placeholder="Anything to flag — pain, illness, poor sleep, travel…"></textarea>
+    <textarea id="morningNotes" rows="2" placeholder="Anything to flag — pain, illness, poor sleep…"></textarea>
   </div>
 
 </main>
-
 <div class="sticky-bottom">
-  <button class="btn-wa" onclick="sendWhatsApp()">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-    </svg>
-    Send via WhatsApp
-  </button>
-  <button class="btn-save" onclick="saveLocal()">
-    💾 Save locally only
-  </button>
+  <div class="btn-row">
+    <button class="btn-wa btn-morning" onclick="sendMorning()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Send Morning Check
+    </button>
+    <button class="btn-save" onclick="saveLocal('morning')">💾 Save locally only</button>
+  </div>
+</div>
+</div>
+
+<!-- ══ EVENING / WORKLOAD ════════════════════════════════════════════════════ -->
+<div id="tab-evening" class="tab-content">
+<main>
+
+  <div class="done-banner done-evening" id="doneEvening">
+    <strong>✅ Workload sent</strong>
+    <span>Resubmit below if you need to update.</span>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Session Workload — <span>time (mins) × RPE (1–10)</span></div>
+
+    <!-- MATCHES -->
+    <div class="section-lbl">Matches</div>
+
+    <div class="session-group">
+      <div class="session-label">Match — Singles 1 <span class="session-au" id="au-ms1">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-ms1" placeholder="0" min="0" max="300" oninput="calcAU('ms1')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-ms1" placeholder="0" min="0" max="10" oninput="calcAU('ms1')"></div>
+      </div>
+    </div>
+
+    <div class="session-group">
+      <div class="session-label">Match — Singles 2 <span class="session-au" id="au-ms2">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-ms2" placeholder="0" min="0" max="300" oninput="calcAU('ms2')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-ms2" placeholder="0" min="0" max="10" oninput="calcAU('ms2')"></div>
+      </div>
+    </div>
+
+    <div class="session-group">
+      <div class="session-label">Match — Doubles <span class="session-au" id="au-md">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-md" placeholder="0" min="0" max="300" oninput="calcAU('md')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-md" placeholder="0" min="0" max="10" oninput="calcAU('md')"></div>
+      </div>
+    </div>
+
+    <hr class="session-divider">
+
+    <!-- ON-COURT -->
+    <div class="section-lbl green">On-Court</div>
+
+    <div class="session-group">
+      <div class="session-label">On-Court 1 <span class="session-au" id="au-oc1">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-oc1" placeholder="0" min="0" max="300" oninput="calcAU('oc1')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-oc1" placeholder="0" min="0" max="10" oninput="calcAU('oc1')"></div>
+      </div>
+    </div>
+
+    <div class="session-group">
+      <div class="session-label">On-Court 2 <span class="session-au" id="au-oc2">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-oc2" placeholder="0" min="0" max="300" oninput="calcAU('oc2')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-oc2" placeholder="0" min="0" max="10" oninput="calcAU('oc2')"></div>
+      </div>
+    </div>
+
+    <div class="session-group">
+      <div class="session-label">On-Court 3 <span class="session-au" id="au-oc3">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-oc3" placeholder="0" min="0" max="300" oninput="calcAU('oc3')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-oc3" placeholder="0" min="0" max="10" oninput="calcAU('oc3')"></div>
+      </div>
+    </div>
+
+    <div class="session-group">
+      <div class="session-label">On-Court Conditioning <span class="session-au" id="au-occ">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-occ" placeholder="0" min="0" max="300" oninput="calcAU('occ')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-occ" placeholder="0" min="0" max="10" oninput="calcAU('occ')"></div>
+      </div>
+    </div>
+
+    <hr class="session-divider">
+
+    <!-- PHYSICAL -->
+    <div class="section-lbl amber">Physical</div>
+
+    <div class="session-group">
+      <div class="session-label">Agility <span class="session-au" id="au-ag">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-ag" placeholder="0" min="0" max="300" oninput="calcAU('ag')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-ag" placeholder="0" min="0" max="10" oninput="calcAU('ag')"></div>
+      </div>
+    </div>
+
+    <div class="session-group">
+      <div class="session-label">Power <span class="session-au" id="au-pw">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-pw" placeholder="0" min="0" max="300" oninput="calcAU('pw')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-pw" placeholder="0" min="0" max="10" oninput="calcAU('pw')"></div>
+      </div>
+    </div>
+
+    <div class="session-group">
+      <div class="session-label">Strength <span class="session-au" id="au-st">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-st" placeholder="0" min="0" max="300" oninput="calcAU('st')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-st" placeholder="0" min="0" max="10" oninput="calcAU('st')"></div>
+      </div>
+    </div>
+
+    <div class="session-group">
+      <div class="session-label">Body Mgmt <span class="session-au" id="au-bm">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-bm" placeholder="0" min="0" max="300" oninput="calcAU('bm')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-bm" placeholder="0" min="0" max="10" oninput="calcAU('bm')"></div>
+      </div>
+    </div>
+
+    <div class="session-group">
+      <div class="session-label">Aerobic <span class="session-au" id="au-ae">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-ae" placeholder="0" min="0" max="300" oninput="calcAU('ae')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-ae" placeholder="0" min="0" max="10" oninput="calcAU('ae')"></div>
+      </div>
+    </div>
+
+    <div class="session-group">
+      <div class="session-label">Other <span class="session-au" id="au-ot">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-ot" placeholder="0" min="0" max="300" oninput="calcAU('ot')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-ot" placeholder="0" min="0" max="10" oninput="calcAU('ot')"></div>
+      </div>
+    </div>
+
+    <!-- TOTAL -->
+    <div class="total-box">
+      <div class="lbl">Total Daily Load<small>all sessions combined</small></div>
+      <div class="val" id="totalAU">0 AU</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Notes (optional)</div>
+    <textarea id="eveningNotes" rows="2" placeholder="How did training feel? Anything to flag…"></textarea>
+  </div>
+
+</main>
+<div class="sticky-bottom">
+  <div class="btn-row">
+    <button class="btn-wa btn-evening" onclick="sendEvening()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Send Workload
+    </button>
+    <button class="btn-save" onclick="saveLocal('evening')">💾 Save locally only</button>
+  </div>
 </div>
 </div>
 
 <!-- ══ HISTORY ═══════════════════════════════════════════════════════════════ -->
 <div id="tab-history" class="tab-content">
-<main>
-  <div id="historyList"></div>
-</main>
+<main><div id="historyList"></div></main>
 </div>
 
 <!-- ══ SETTINGS ══════════════════════════════════════════════════════════════ -->
@@ -309,10 +495,7 @@
   <div class="card">
     <div class="card-title">Athlete</div>
     <div class="setting-row">
-      <div>
-        <div class="setting-lbl">Name</div>
-        <div class="setting-sub" id="nameDisplay">Not set</div>
-      </div>
+      <div><div class="setting-lbl">Name</div><div class="setting-sub" id="nameDisplay">Not set</div></div>
       <button class="btn-sm" onclick="setName()">Edit</button>
     </div>
   </div>
@@ -320,28 +503,17 @@
   <div class="card">
     <div class="card-title">WhatsApp — coach number</div>
     <div class="setting-row">
-      <div>
-        <div class="setting-lbl">Coach WhatsApp number</div>
-        <div class="setting-sub" id="waDisplay">Not set</div>
-      </div>
+      <div><div class="setting-lbl">Coach number</div><div class="setting-sub" id="waDisplay">Not set</div></div>
       <button class="btn-sm" onclick="setWA()">Edit</button>
     </div>
-    <div class="info-box">
-      Enter the coach's number in international format — e.g. <strong>447911123456</strong> (no +, no spaces). The app will open WhatsApp with a pre-filled message ready to send.
-    </div>
+    <div class="info-box">International format, no + or spaces — e.g. <strong>447911123456</strong></div>
   </div>
 
   <div class="card">
     <div class="card-title">Morning Reminder</div>
     <div class="setting-row">
-      <div>
-        <div class="setting-lbl">Daily notification</div>
-        <div class="setting-sub">Remind me to log each morning</div>
-      </div>
-      <label class="toggle">
-        <input type="checkbox" id="remToggle" onchange="toggleReminder()">
-        <span class="tog-track"></span>
-      </label>
+      <div><div class="setting-lbl">Daily notification</div><div class="setting-sub">Remind me each morning</div></div>
+      <label class="toggle"><input type="checkbox" id="remToggle" onchange="toggleReminder()"><span class="tog-track"></span></label>
     </div>
     <div class="setting-row">
       <div class="setting-lbl">Reminder time</div>
@@ -353,16 +525,13 @@
   <div class="card">
     <div class="card-title">Data</div>
     <div class="setting-row">
-      <div>
-        <div class="setting-lbl">Clear all history</div>
-        <div class="setting-sub">Removes entries from this device only</div>
-      </div>
+      <div><div class="setting-lbl">Clear all history</div><div class="setting-sub">Removes entries from this device only</div></div>
       <button class="btn-sm btn-danger" onclick="clearData()">Clear</button>
     </div>
   </div>
 
   <div style="text-align:center;color:var(--sub);font-size:12px;padding:20px 0 40px;line-height:1.9">
-    Daily Readiness — Hooper Index<br>
+    Daily Readiness · Hooper Index<br>
     Hooper et al. (1995) Med Sci Sports Exerc
   </div>
 
@@ -372,13 +541,29 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ── Storage ───────────────────────────────────────────────────────────────────
 const ls  = k     => { try { return localStorage.getItem(k); }  catch(e){ return null; } };
 const lss = (k,v) => { try { localStorage.setItem(k,v); }       catch(e){} };
 const lsd = k     => { try { localStorage.removeItem(k); }      catch(e){} };
 
-// ── Scores ────────────────────────────────────────────────────────────────────
+// Hooper scores
 const sc = { sleep:4, fatigue:4, stress:4, soreness:4 };
+
+// Session keys and labels
+const SESSIONS = [
+  { key:'ms1', label:'Match Singles 1' },
+  { key:'ms2', label:'Match Singles 2' },
+  { key:'md',  label:'Match Doubles'   },
+  { key:'oc1', label:'On-Court 1'      },
+  { key:'oc2', label:'On-Court 2'      },
+  { key:'oc3', label:'On-Court 3'      },
+  { key:'occ', label:'On-Court Conditioning' },
+  { key:'ag',  label:'Agility'         },
+  { key:'pw',  label:'Power'           },
+  { key:'st',  label:'Strength'        },
+  { key:'bm',  label:'Body Mgmt'       },
+  { key:'ae',  label:'Aerobic'         },
+  { key:'ot',  label:'Other'           },
+];
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
 window.addEventListener('load', () => {
@@ -407,16 +592,14 @@ function showTab(name, btn) {
 function initSliders() { Object.keys(sc).forEach(k => slide(k, sc[k], true)); }
 
 function slide(key, val, init) {
-  val = parseInt(val);
-  sc[key] = val;
+  val = parseInt(val); sc[key] = val;
   const el   = document.getElementById('s-'+key);
   const disp = document.getElementById('v-'+key);
   const pct  = ((val-1)/6*100).toFixed(1)+'%';
   el.style.setProperty('--pct', pct);
   const fill = val<=2?'var(--green)':val<=4?'var(--navy)':val<=5?'var(--amber)':'var(--red)';
   el.style.setProperty('--track-fill', fill);
-  disp.textContent = val;
-  disp.style.color = fill;
+  disp.textContent = val; disp.style.color = fill;
   updateTotal();
 }
 
@@ -425,77 +608,135 @@ function updateTotal() {
   const el = document.getElementById('hTotal');
   const st = document.getElementById('hStatus');
   el.textContent = t;
-  if      (t <= 13) { el.className='hb-score c-green'; st.textContent='🟢 Ready';     st.style.color='var(--green)'; }
-  else if (t <= 19) { el.className='hb-score c-navy';  st.textContent='⚪ OK';         st.style.color='var(--navy)';  }
-  else if (t <= 23) { el.className='hb-score c-amber'; st.textContent='🟡 Monitor';   st.style.color='var(--amber)'; }
-  else              { el.className='hb-score c-red';   st.textContent='🔴 High load'; st.style.color='var(--red)';   }
+  if      (t<=13) { el.className='hb-score c-green'; st.textContent='🟢 Ready';     st.style.color='var(--green)'; }
+  else if (t<=19) { el.className='hb-score c-navy';  st.textContent='⚪ OK';         st.style.color='var(--navy)';  }
+  else if (t<=23) { el.className='hb-score c-amber'; st.textContent='🟡 Monitor';   st.style.color='var(--amber)'; }
+  else            { el.className='hb-score c-red';   st.textContent='🔴 High load'; st.style.color='var(--red)';   }
 }
 
-// ── Already done ──────────────────────────────────────────────────────────────
-function todayKey() { return 'entry_'+new Date().toISOString().slice(0,10); }
-function checkDone() { if (ls(todayKey())) document.getElementById('doneBanner').style.display='block'; }
-
-// ── Build entry object ────────────────────────────────────────────────────────
-function buildEntry() {
-  const t      = sc.sleep + sc.fatigue + sc.stress + sc.soreness;
-  const status = t<=13?'🟢 Ready':t<=19?'⚪ OK':t<=23?'🟡 Monitor':'🔴 High load';
-  return {
-    date:     new Date().toISOString().slice(0,10),
-    datetime: new Date().toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}),
-    name:     ls('athleteName')||'Athlete',
-    ...sc, total: t, status,
-    notes: document.getElementById('notes').value.trim()
-  };
+// ── AU calculations ───────────────────────────────────────────────────────────
+function calcAU(key) {
+  const t   = parseFloat(document.getElementById('t-'+key).value) || 0;
+  const r   = parseFloat(document.getElementById('r-'+key).value) || 0;
+  const au  = Math.round(t * r);
+  document.getElementById('au-'+key).textContent = au > 0 ? au+' AU' : '— AU';
+  updateTotalAU();
 }
 
-// ── Save locally ──────────────────────────────────────────────────────────────
-function persist(entry) {
-  lss(todayKey(), JSON.stringify(entry));
-  const hist = JSON.parse(ls('history')||'[]');
-  const idx  = hist.findIndex(e => e.date === entry.date);
-  if (idx >= 0) hist[idx] = entry; else hist.unshift(entry);
-  lss('history', JSON.stringify(hist.slice(0,90)));
-  document.getElementById('doneBanner').style.display = 'block';
+function getAU(key) {
+  const t = parseFloat(document.getElementById('t-'+key).value) || 0;
+  const r = parseFloat(document.getElementById('r-'+key).value) || 0;
+  return Math.round(t * r);
 }
 
-// ── WhatsApp send ─────────────────────────────────────────────────────────────
-function sendWhatsApp() {
-  const e   = buildEntry();
-  persist(e);
+function updateTotalAU() {
+  const total = SESSIONS.reduce((sum, s) => sum + getAU(s.key), 0);
+  document.getElementById('totalAU').textContent = total.toLocaleString() + ' AU';
+}
 
+// ── Already done today? ───────────────────────────────────────────────────────
+function todayKey(type) { return type+'_'+new Date().toISOString().slice(0,10); }
+
+function checkDone() {
+  if (ls(todayKey('morning'))) document.getElementById('doneMorning').style.display = 'block';
+  if (ls(todayKey('evening'))) document.getElementById('doneEvening').style.display = 'block';
+}
+
+// ── WhatsApp helpers ──────────────────────────────────────────────────────────
+function openWA(msg) {
   const num = ls('waNumber');
-  const notes = e.notes ? `\n📝 ${e.notes}` : '';
-
-  const msg =
-`*Daily Readiness — ${e.name}*
-📅 ${e.datetime}
-
-*Hooper Index: ${e.total}/28 ${e.status}*
-😴 Sleep: ${e.sleep}/7
-😵 Fatigue: ${e.fatigue}/7
-😤 Stress: ${e.stress}/7
-💪 Soreness: ${e.soreness}/7${notes}`;
-
-  const encoded = encodeURIComponent(msg);
-  const url = num
-    ? `https://wa.me/${num}?text=${encoded}`
-    : `https://wa.me/?text=${encoded}`;
-
+  const url = (num ? `https://wa.me/${num}?text=` : `https://wa.me/?text=`) + encodeURIComponent(msg);
   window.open(url, '_blank');
   toast('Opening WhatsApp…');
 }
 
+// ── Morning send ──────────────────────────────────────────────────────────────
+function sendMorning() {
+  const t      = sc.sleep + sc.fatigue + sc.stress + sc.soreness;
+  const status = t<=13?'🟢 Ready':t<=19?'⚪ OK':t<=23?'🟡 Monitor':'🔴 High load';
+  const name   = ls('athleteName')||'Athlete';
+  const notes  = document.getElementById('morningNotes').value.trim();
+  const date   = new Date().toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+
+  const entry = { date: new Date().toISOString().slice(0,10), datetime: date, name, type:'morning', ...sc, total:t, status, notes };
+  persist('morning', entry);
+
+  const msg =
+`*Morning Readiness — ${name}*
+📅 ${date}
+
+*Hooper: ${t}/28 ${status}*
+😴 Sleep: ${sc.sleep}/7
+😵 Fatigue: ${sc.fatigue}/7
+😤 Stress: ${sc.stress}/7
+💪 Soreness: ${sc.soreness}/7${notes?'\n📝 '+notes:''}`;
+
+  openWA(msg);
+}
+
+// ── Evening send ──────────────────────────────────────────────────────────────
+function sendEvening() {
+  const name  = ls('athleteName')||'Athlete';
+  const notes = document.getElementById('eveningNotes').value.trim();
+  const date  = new Date().toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+  const total = SESSIONS.reduce((sum, s) => sum + getAU(s.key), 0);
+
+  // Build session lines — only include sessions with data
+  const lines = SESSIONS
+    .filter(s => getAU(s.key) > 0)
+    .map(s => {
+      const t = document.getElementById('t-'+s.key).value;
+      const r = document.getElementById('r-'+s.key).value;
+      return `  ${s.label}: ${t}min × RPE${r} = ${getAU(s.key)} AU`;
+    }).join('\n');
+
+  const sessionData = SESSIONS.reduce((obj, s) => {
+    obj[s.key] = { t: document.getElementById('t-'+s.key).value||0, r: document.getElementById('r-'+s.key).value||0, au: getAU(s.key) };
+    return obj;
+  }, {});
+
+  const entry = { date: new Date().toISOString().slice(0,10), datetime: date, name, type:'evening', sessions: sessionData, total, notes };
+  persist('evening', entry);
+
+  const msg =
+`*Training Workload — ${name}*
+📅 ${date}
+
+${lines || '  No sessions logged'}
+
+*Total: ${total.toLocaleString()} AU*${notes?'\n📝 '+notes:''}`;
+
+  openWA(msg);
+}
+
 // ── Save locally only ─────────────────────────────────────────────────────────
-function saveLocal() {
-  persist(buildEntry());
+function saveLocal(type) {
+  if (type === 'morning') {
+    const t = sc.sleep + sc.fatigue + sc.stress + sc.soreness;
+    const status = t<=13?'🟢 Ready':t<=19?'⚪ OK':t<=23?'🟡 Monitor':'🔴 High load';
+    persist('morning', { date: new Date().toISOString().slice(0,10), datetime: new Date().toLocaleString('en-GB'), name: ls('athleteName')||'Athlete', type:'morning', ...sc, total:t, status, notes: document.getElementById('morningNotes').value.trim() });
+  } else {
+    const total = SESSIONS.reduce((sum, s) => sum + getAU(s.key), 0);
+    const sessionData = SESSIONS.reduce((obj, s) => { obj[s.key] = { au: getAU(s.key) }; return obj; }, {});
+    persist('evening', { date: new Date().toISOString().slice(0,10), datetime: new Date().toLocaleString('en-GB'), name: ls('athleteName')||'Athlete', type:'evening', sessions: sessionData, total, notes: document.getElementById('eveningNotes').value.trim() });
+  }
   toast('💾 Saved locally');
+}
+
+// ── Persist ───────────────────────────────────────────────────────────────────
+function persist(type, entry) {
+  lss(todayKey(type), JSON.stringify(entry));
+  const hist = JSON.parse(ls('history')||'[]');
+  const idx  = hist.findIndex(e => e.date === entry.date && e.type === type);
+  if (idx >= 0) hist[idx] = entry; else hist.unshift(entry);
+  lss('history', JSON.stringify(hist.slice(0,180)));
+  document.getElementById(type==='morning'?'doneMorning':'doneEvening').style.display = 'block';
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
 function toast(msg, ms=3000) {
   const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
+  el.textContent = msg; el.classList.add('show');
   setTimeout(()=>el.classList.remove('show'), ms);
 }
 
@@ -503,22 +744,26 @@ function toast(msg, ms=3000) {
 function renderHistory() {
   const hist = JSON.parse(ls('history')||'[]');
   const el   = document.getElementById('historyList');
-  if (!hist.length) {
-    el.innerHTML='<div class="empty-state">No entries yet.<br>Submit today\'s readiness to get started.</div>';
-    return;
-  }
+  if (!hist.length) { el.innerHTML='<div class="empty-state">No entries yet.</div>'; return; }
   const col = t => t<=13?'var(--green)':t<=19?'var(--navy)':t<=23?'var(--amber)':'var(--red)';
-  el.innerHTML = hist.map(e =>
-    `<div class="history-item">
-      <div class="hi-date">${e.datetime||e.date}${e.name?' · '+e.name:''}</div>
-      <div class="hi-row">
-        <div class="hi-score" style="color:${col(e.total)}">${e.total}</div>
-        <div class="hi-status" style="color:${col(e.total)}">${e.status}</div>
-      </div>
-      <div class="hi-detail">😴${e.sleep} &nbsp;😵${e.fatigue} &nbsp;😤${e.stress} &nbsp;💪${e.soreness}</div>
-      ${e.notes?`<div class="hi-notes">"${e.notes}"</div>`:''}
-    </div>`
-  ).join('');
+  el.innerHTML = hist.map(e => {
+    if (e.type === 'morning') return `
+      <div class="history-item">
+        <div class="hi-date">🌅 ${e.datetime}${e.name?' · '+e.name:''}</div>
+        <div class="hi-row">
+          <div class="hi-score" style="color:${col(e.total)}">${e.total}</div>
+          <div class="hi-status" style="color:${col(e.total)}">${e.status}</div>
+        </div>
+        <div class="hi-detail">😴${e.sleep} 😵${e.fatigue} 😤${e.stress} 💪${e.soreness}</div>
+        ${e.notes?`<div class="hi-notes">"${e.notes}"</div>`:''}
+      </div>`;
+    else return `
+      <div class="history-item">
+        <div class="hi-date">🏃 ${e.datetime}${e.name?' · '+e.name:''}</div>
+        <div class="hi-load">Total: ${(e.total||0).toLocaleString()} AU</div>
+        ${e.notes?`<div class="hi-notes">"${e.notes}"</div>`:''}
+      </div>`;
+  }).join('');
 }
 
 // ── Settings ──────────────────────────────────────────────────────────────────
@@ -527,10 +772,9 @@ function loadSettings() {
   document.getElementById('nameDisplay').textContent = name||'Not set';
   if (name) document.getElementById('headerName').textContent = name;
   document.getElementById('waDisplay').textContent = ls('waNumber')||'Not set';
-  const remOn   = ls('remOn')==='true';
-  const remTime = ls('remTime')||'07:30';
+  const remOn = ls('remOn')==='true', remTime = ls('remTime')||'07:30';
   document.getElementById('remToggle').checked = remOn;
-  document.getElementById('remTime').value     = remTime;
+  document.getElementById('remTime').value = remTime;
   if (remOn) scheduleRem(remTime);
   updateRemStatus(remOn, remTime);
 }
@@ -542,93 +786,42 @@ function setName() {
   if (v&&v.trim()) {
     lss('athleteName', v.trim());
     document.getElementById('nameDisplay').textContent = v.trim();
-    document.getElementById('headerName').textContent  = v.trim();
+    document.getElementById('headerName').textContent = v.trim();
     toast('Name saved');
   }
 }
 
 function setWA() {
-  const v = prompt("Enter coach's WhatsApp number\n(international format, no + or spaces)\ne.g. 447911123456", ls('waNumber')||'');
-  if (v!==null) {
-    const clean = v.replace(/\D/g,'');
-    lss('waNumber', clean);
-    document.getElementById('waDisplay').textContent = clean||'Not set';
-    toast('Number saved');
-  }
+  const v = prompt("Coach's WhatsApp number (international format, no + or spaces):\ne.g. 447911123456", ls('waNumber')||'');
+  if (v!==null) { const c=v.replace(/\D/g,''); lss('waNumber',c); document.getElementById('waDisplay').textContent=c||'Not set'; toast('Number saved'); }
 }
 
 function clearData() {
-  if (!confirm('Clear all saved entries from this device?')) return;
-  Object.keys(localStorage).filter(k=>k.startsWith('entry_')||k==='history').forEach(k=>lsd(k));
+  if (!confirm('Clear all saved entries?')) return;
+  Object.keys(localStorage).filter(k=>k.startsWith('morning_')||k.startsWith('evening_')||k==='history').forEach(k=>lsd(k));
   toast('History cleared');
 }
 
 // ── Reminder ──────────────────────────────────────────────────────────────────
 let remInterval = null;
-
 async function toggleReminder() {
-  const on   = document.getElementById('remToggle').checked;
-  const time = document.getElementById('remTime').value;
+  const on = document.getElementById('remToggle').checked, time = document.getElementById('remTime').value;
   if (on) {
-    if (!('Notification' in window)) {
-      alert('Notifications not supported. Add the app to your home screen first.');
-      document.getElementById('remToggle').checked = false; return;
-    }
-    if (Notification.permission==='default') {
-      const p = await Notification.requestPermission();
-      if (p!=='granted') {
-        document.getElementById('remToggle').checked = false;
-        updateRemStatus(false, time, '❌ Permission denied — allow in phone Settings.');
-        return;
-      }
-    }
-    if (Notification.permission==='denied') {
-      document.getElementById('remToggle').checked = false;
-      updateRemStatus(false, time, '❌ Notifications blocked. Enable in Settings → Safari → Notifications.');
-      return;
-    }
-    lss('remOn','true'); scheduleRem(time);
-    updateRemStatus(true, time); toast('Reminder set for '+time);
-  } else {
-    lss('remOn','false');
-    if (remInterval) { clearInterval(remInterval); remInterval=null; }
-    updateRemStatus(false, time);
-  }
+    if (!('Notification' in window)) { alert('Add the app to your home screen first.'); document.getElementById('remToggle').checked=false; return; }
+    if (Notification.permission==='default') { const p=await Notification.requestPermission(); if(p!=='granted'){document.getElementById('remToggle').checked=false;updateRemStatus(false,time,'❌ Permission denied.');return;} }
+    if (Notification.permission==='denied') { document.getElementById('remToggle').checked=false; updateRemStatus(false,time,'❌ Blocked — enable in Settings → Notifications.'); return; }
+    lss('remOn','true'); scheduleRem(time); updateRemStatus(true,time); toast('Reminder set for '+time);
+  } else { lss('remOn','false'); if(remInterval){clearInterval(remInterval);remInterval=null;} updateRemStatus(false,time); }
 }
-
-function saveRemTime() {
-  const time = document.getElementById('remTime').value;
-  lss('remTime', time);
-  if (ls('remOn')==='true') {
-    if (remInterval) { clearInterval(remInterval); remInterval=null; }
-    scheduleRem(time); toast('Reminder updated to '+time);
-  }
-  updateRemStatus(ls('remOn')==='true', time);
-}
-
+function saveRemTime() { const t=document.getElementById('remTime').value; lss('remTime',t); if(ls('remOn')==='true'){if(remInterval){clearInterval(remInterval);remInterval=null;}scheduleRem(t);toast('Updated to '+t);} updateRemStatus(ls('remOn')==='true',t); }
 function scheduleRem(timeStr) {
   if (remInterval) clearInterval(remInterval);
   remInterval = setInterval(()=>{
-    const now  = new Date();
-    const hhmm = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
-    if (hhmm===timeStr) {
-      const key='notified_'+now.toISOString().slice(0,10);
-      if (!ls(key)) {
-        lss(key,'1');
-        new Notification('Morning readiness check 🌅',{
-          body:'Tap to log your Hooper scores — takes 60 seconds.',
-          icon:'icon.png'
-        });
-      }
-    }
-  }, 30000);
+    const now=new Date(), hhmm=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+    if(hhmm===timeStr){const k='notified_'+now.toISOString().slice(0,10);if(!ls(k)){lss(k,'1');new Notification('Morning readiness check 🌅',{body:'Log your Hooper scores — 60 seconds.',icon:'icon.png'});}}
+  },30000);
 }
-
-function updateRemStatus(on, time, override) {
-  document.getElementById('remStatus').textContent = override||
-    (on ? `✅ Reminder set daily at ${time}. Keep the app added to your home screen for this to work.`
-        : 'Enable the toggle above to set a daily reminder.');
-}
+function updateRemStatus(on,time,override) { document.getElementById('remStatus').textContent=override||(on?`✅ Reminder set daily at ${time}.`:'Enable the toggle above to set a daily reminder.'); }
 </script>
 </body>
 </html>
