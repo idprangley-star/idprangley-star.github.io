@@ -479,6 +479,7 @@
       Send Workload
     </button>
     <button class="btn-save" onclick="saveLocal('evening')">💾 Save locally only</button>
+    <button class="btn-save" onclick="clearEvening()" style="color:var(--red);border-color:var(--red)">🗑 Clear all fields</button>
   </div>
 </div>
 </div>
@@ -800,6 +801,21 @@ function clearData() {
   if (!confirm('Clear all saved entries?')) return;
   Object.keys(localStorage).filter(k=>k.startsWith('morning_')||k.startsWith('evening_')||k==='history').forEach(k=>lsd(k));
   toast('History cleared');
+}
+
+// ── Clear evening fields ─────────────────────────────────────────────────────
+function clearEvening() {
+  if (!confirm('Clear all session data?')) return;
+  ['ms1','ms2','md','oc1','oc2','oc3','occ','ag','pw','st','bm','ae','ot'].forEach(key => {
+    document.getElementById('t-'+key).value = '';
+    document.getElementById('r-'+key).value = '';
+    document.getElementById('au-'+key).textContent = '— AU';
+  });
+  document.getElementById('eveningNotes').value = '';
+  document.getElementById('totalAU').textContent = '0 AU';
+  document.getElementById('doneEvening').style.display = 'none';
+  lsd(todayKey('evening'));
+  toast('Fields cleared');
 }
 
 // ── Reminder ──────────────────────────────────────────────────────────────────
