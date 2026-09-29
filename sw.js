@@ -1,10 +1,5 @@
 const CACHE = 'readiness-v1';
-const ASSETS = [
-  '/readiness/',
-  '/readiness/index.html',
-  '/readiness/manifest.json',
-  '/readiness/icon.png'
-];
+const ASSETS = ['/', '/index.html', '/manifest.json', '/icon.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
@@ -20,8 +15,8 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(cached => 
-      cached || fetch(e.request).catch(() => caches.match('/readiness/index.html'))
+    caches.match(e.request).then(cached =>
+      cached || fetch(e.request).catch(() => caches.match('/index.html'))
     )
   );
 });

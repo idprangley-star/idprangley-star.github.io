@@ -8,9 +8,9 @@
 <meta name="apple-mobile-web-app-title" content="Readiness">
 <meta name="theme-color" content="#1D4E8F">
 <title>Daily Readiness</title>
-<base href="/readiness/">
-<link rel="manifest" href="/readiness/manifest.json">
-<link rel="apple-touch-icon" href="/readiness/icon.png">
+
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
 <style>
   :root {
     --navy:  #1D4E8F;
@@ -391,7 +391,7 @@ window.addEventListener('load', () => {
   initSliders();
 });
 
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('/readiness/sw.js').catch(()=>{});
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 function showTab(name, btn) {
