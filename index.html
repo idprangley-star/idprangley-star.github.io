@@ -252,75 +252,6 @@
   .c-amber { color: var(--amber); }
   .c-red   { color: var(--red);   }
   .c-navy  { color: var(--navy);  }
-
-  /* Hooper total — centred block */
-  .hooper-box {
-    background: var(--light); border-radius: 12px;
-    padding: 16px; margin-top: 16px;
-    border: 1.5px solid var(--border); text-align: center;
-  }
-  .hb-total-label { font-size: 12px; color: var(--sub); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
-  .hb-score     { font-size: 48px; font-weight: 900; line-height: 1.1; }
-  .hb-status    { font-size: 15px; font-weight: 700; margin-top: 4px; }
-  .hb-sub       { font-size: 11px; color: var(--sub); margin-top: 2px; }
-
-  /* Readiness slider — distinct style */
-  .readiness-card {
-    background: var(--white); border-radius: var(--rad);
-    padding: 16px; margin-bottom: 14px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-    border-left: 4px solid var(--navy);
-  }
-  .readiness-label { font-size: 12px; font-weight: 700; color: var(--sub); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 12px; }
-
-  /* RPE info button */
-  .rpe-label-row { display: flex; align-items: center; gap: 6px; }
-  .info-btn {
-    width: 18px; height: 18px; border-radius: 50%;
-    background: var(--navy); color: #fff;
-    font-size: 11px; font-weight: 700; border: none;
-    cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
-    flex-shrink: 0; line-height: 1;
-  }
-
-  /* Borg modal */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.5); z-index: 1000;
-    align-items: flex-end; justify-content: center;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal-sheet {
-    background: var(--white); border-radius: 20px 20px 0 0;
-    padding: 20px 16px calc(var(--safe-bot) + 20px);
-    width: 100%; max-width: 480px; max-height: 80vh; overflow-y: auto;
-  }
-  .modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px; }
-  .modal-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-  .modal-sub   { font-size: 13px; color: var(--sub); margin-bottom: 16px; }
-  .borg-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 9px 12px; border-radius: 8px; margin-bottom: 4px;
-  }
-  .borg-num  { font-size: 18px; font-weight: 900; min-width: 24px; text-align: center; }
-  .borg-desc { font-size: 14px; font-weight: 500; }
-  .borg-hint { font-size: 12px; color: var(--sub); margin-top: 1px; }
-  .borg-0  { background: #F0F0F0; }
-  .borg-1  { background: #E8F5E9; }
-  .borg-2  { background: #E8F5E9; }
-  .borg-3  { background: #E3F2E1; border: 2px solid var(--green); }
-  .borg-4  { background: #FFF8E1; }
-  .borg-5  { background: #FFF3E0; }
-  .borg-6  { background: #FFF3E0; }
-  .borg-7  { background: #FFEBEE; }
-  .borg-8  { background: #FFEBEE; }
-  .borg-9  { background: #FCE4D6; }
-  .borg-10 { background: #FCE4D6; border: 2px solid var(--red); }
-  .btn-close {
-    width: 100%; padding: 14px; background: var(--navy); color: #fff;
-    border: none; border-radius: var(--rad); font-size: 16px; font-weight: 700;
-    cursor: pointer; margin-top: 16px;
-  }
 </style>
 </head>
 <body>
@@ -350,40 +281,35 @@
     <div class="card-title">Hooper Index — 1 = best &nbsp;·&nbsp; 7 = worst</div>
 
     <div class="question">
-      <div class="q-header"><span class="q-label">Sleep Quality</span></div>
+      <div class="q-header"><span class="q-label">Sleep Quality</span><span class="q-value c-navy" id="v-sleep">4</span></div>
       <div class="q-hints"><span>Very good</span><span>Very bad</span></div>
       <input type="range" min="1" max="7" value="4" id="s-sleep" oninput="slide('sleep',this.value)">
     </div>
 
     <div class="question">
-      <div class="q-header"><span class="q-label">Fatigue</span></div>
+      <div class="q-header"><span class="q-label">Fatigue</span><span class="q-value c-navy" id="v-fatigue">4</span></div>
       <div class="q-hints"><span>Not at all</span><span>Extremely</span></div>
       <input type="range" min="1" max="7" value="4" id="s-fatigue" oninput="slide('fatigue',this.value)">
     </div>
 
     <div class="question">
-      <div class="q-header"><span class="q-label">Stress</span></div>
+      <div class="q-header"><span class="q-label">Stress</span><span class="q-value c-navy" id="v-stress">4</span></div>
       <div class="q-hints"><span>Very relaxed</span><span>Extremely stressed</span></div>
       <input type="range" min="1" max="7" value="4" id="s-stress" oninput="slide('stress',this.value)">
     </div>
 
     <div class="question">
-      <div class="q-header"><span class="q-label">Muscle Soreness</span></div>
+      <div class="q-header"><span class="q-label">Muscle Soreness</span><span class="q-value c-navy" id="v-soreness">4</span></div>
       <div class="q-hints"><span>No soreness</span><span>Extremely sore</span></div>
       <input type="range" min="1" max="7" value="4" id="s-soreness" oninput="slide('soreness',this.value)">
     </div>
-    </div>
-  </div>
 
-  <div class="readiness-card">
-    <div class="readiness-label">Readiness to Train</div>
-    <div class="question" style="margin-bottom:0">
-      <div class="q-header">
-        <span class="q-label">How ready do you feel to train today?</span>
-        
+    <div class="hooper-box">
+      <div class="hb-left">Hooper Total<small>out of 28</small></div>
+      <div class="hb-right">
+        <div class="hb-score c-navy" id="hTotal">16</div>
+        <div class="hb-status" id="hStatus">⚪ OK</div>
       </div>
-      <div class="q-hints"><span>Very ready</span><span>Not at all ready</span></div>
-      <input type="range" min="1" max="7" value="4" id="s-readiness" oninput="slide('readiness',this.value)">
     </div>
   </div>
 
@@ -414,7 +340,7 @@
   </div>
 
   <div class="card">
-    <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">Session Workload — <span>time (mins) × RPE (1–10)</span> <button class="info-btn" onclick="openBorg()" type="button" style="width:22px;height:22px;font-size:13px;flex-shrink:0">i</button></div>
+    <div class="card-title">Session Workload — <span>time (mins) × RPE (1–10)</span></div>
 
     <!-- MATCHES -->
     <div class="section-lbl">Matches</div>
@@ -577,13 +503,16 @@
   </div>
 
   <div class="card">
-    <div class="card-title">Reminders</div>
-    <div class="info-box" style="margin-top:0">
-      <strong>Set two daily alarms on your phone:</strong><br><br>
-      ⏰ <strong>Morning alarm</strong> — to log your Hooper readiness scores<br><br>
-      ⏰ <strong>Evening alarm</strong> — to log your training workload<br><br>
-      Label each one so you know which is which. This is more reliable than in-app notifications on mobile browsers.
+    <div class="card-title">Morning Reminder</div>
+    <div class="setting-row">
+      <div><div class="setting-lbl">Daily notification</div><div class="setting-sub">Remind me each morning</div></div>
+      <label class="toggle"><input type="checkbox" id="remToggle" onchange="toggleReminder()"><span class="tog-track"></span></label>
     </div>
+    <div class="setting-row">
+      <div class="setting-lbl">Reminder time</div>
+      <input type="time" id="remTime" value="07:30" onchange="saveRemTime()">
+    </div>
+    <div class="info-box" id="remStatus">Enable the toggle above to set a daily reminder.</div>
   </div>
 
   <div class="card">
@@ -604,34 +533,13 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- Borg Scale Modal -->
-<div class="modal-overlay" id="borgModal" onclick="closeBorg(event)">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-title">Borg CR10 RPE Scale</div>
-    <div class="modal-sub">Rate your perceived effort. Note: <strong>3 = moderate</strong> — not 5.</div>
-    <div class="borg-row borg-0"><div class="borg-num" style="color:#888">0</div><div><div class="borg-desc">Nothing at all</div><div class="borg-hint">Complete rest</div></div></div>
-    <div class="borg-row borg-1"><div class="borg-num" style="color:var(--green)">1</div><div><div class="borg-desc">Very light</div><div class="borg-hint">Easy walking</div></div></div>
-    <div class="borg-row borg-2"><div class="borg-num" style="color:var(--green)">2</div><div><div class="borg-desc">Light</div><div class="borg-hint">Comfortable, could go for hours</div></div></div>
-    <div class="borg-row borg-3"><div class="borg-num" style="color:var(--green)">3</div><div><div class="borg-desc" style="color:var(--green);font-weight:800">⭐ Moderate</div><div class="borg-hint">Noticeable effort, can still speak easily</div></div></div>
-    <div class="borg-row borg-4"><div class="borg-num" style="color:var(--amber)">4</div><div><div class="borg-desc">Somewhat hard</div><div class="borg-hint">Starting to push, breathing heavier</div></div></div>
-    <div class="borg-row borg-5"><div class="borg-num" style="color:var(--amber)">5</div><div><div class="borg-desc">Hard</div><div class="borg-hint">Uncomfortable, short sentences only</div></div></div>
-    <div class="borg-row borg-6"><div class="borg-num" style="color:var(--amber)">6</div><div><div class="borg-desc">Hard+</div><div class="borg-hint">Sustained effort, hard to talk</div></div></div>
-    <div class="borg-row borg-7"><div class="borg-num" style="color:var(--red)">7</div><div><div class="borg-desc">Very hard</div><div class="borg-hint">Very strenuous, near limit of comfort</div></div></div>
-    <div class="borg-row borg-8"><div class="borg-num" style="color:var(--red)">8</div><div><div class="borg-desc">Very hard+</div><div class="borg-hint">Very difficult to maintain</div></div></div>
-    <div class="borg-row borg-9"><div class="borg-num" style="color:var(--red)">9</div><div><div class="borg-desc">Extremely hard</div><div class="borg-hint">Almost maximal effort</div></div></div>
-    <div class="borg-row borg-10"><div class="borg-num" style="color:var(--red);font-weight:900">10</div><div><div class="borg-desc" style="color:var(--red);font-weight:800">Maximal</div><div class="borg-hint">Absolute maximum — cannot go harder</div></div></div>
-    <button class="btn-close" onclick="closeBorg()">Close</button>
-  </div>
-</div>
-
 <script>
 const ls  = k     => { try { return localStorage.getItem(k); }  catch(e){ return null; } };
 const lss = (k,v) => { try { localStorage.setItem(k,v); }       catch(e){} };
 const lsd = k     => { try { localStorage.removeItem(k); }      catch(e){} };
 
 // Hooper scores
-const sc = { sleep:4, fatigue:4, stress:4, soreness:4, readiness:4 };
+const sc = { sleep:4, fatigue:4, stress:4, soreness:4 };
 
 // Session keys and labels
 const SESSIONS = [
@@ -749,11 +657,11 @@ function sendMorning() {
 `*Morning Readiness — ${name}*
 📅 ${date}
 
+*Hooper: ${t}/28 ${status}*
 😴 Sleep: ${sc.sleep}/7
 😵 Fatigue: ${sc.fatigue}/7
 😤 Stress: ${sc.stress}/7
-💪 Soreness: ${sc.soreness}/7
-🚀 Readiness to train: ${sc.readiness}/7${notes?'\n📝 '+notes:''}`;
+💪 Soreness: ${sc.soreness}/7${notes?'\n📝 '+notes:''}`;
 
   openWA(msg);
 }
@@ -856,7 +764,11 @@ function loadSettings() {
   document.getElementById('nameDisplay').textContent = name||'Not set';
   if (name) document.getElementById('headerName').textContent = name;
   document.getElementById('waDisplay').textContent = ls('waNumber')||'Not set';
-  // Reminders handled by phone alarms
+  const remOn = ls('remOn')==='true', remTime = ls('remTime')||'07:30';
+  document.getElementById('remToggle').checked = remOn;
+  document.getElementById('remTime').value = remTime;
+  if (remOn) scheduleRem(remTime);
+  updateRemStatus(remOn, remTime);
 }
 
 function refreshSettings() { loadSettings(); }
@@ -916,13 +828,7 @@ function scheduleRem(timeStr) {
     if(hhmm===timeStr){const k='notified_'+now.toISOString().slice(0,10);if(!ls(k)){lss(k,'1');new Notification('Morning readiness check 🌅',{body:'Log your Hooper scores — 60 seconds.',icon:'icon.png'});}}
   },30000);
 }
-// ── Borg modal ────────────────────────────────────────────────────────────────
-function openBorg() { document.getElementById('borgModal').classList.add('open'); }
-function closeBorg(e) {
-  if (!e || e.target === document.getElementById('borgModal')) {
-    document.getElementById('borgModal').classList.remove('open');
-  }
-}
+function updateRemStatus(on,time,override) { document.getElementById('remStatus').textContent=override||(on?`✅ Reminder set daily at ${time}.`:'Enable the toggle above to set a daily reminder.'); }
 </script>
 </body>
 </html>
