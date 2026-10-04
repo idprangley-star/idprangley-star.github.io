@@ -305,7 +305,7 @@
 
     <div class="question">
       <div class="q-header"><span class="q-label">Fatigue</span></div>
-      <div class="q-hints"><span>Not at all</span><span>Extremely</span></div>
+      <div class="q-hints"><span>Not at all</span><span>Extremely fatigued</span></div>
       <input type="range" min="1" max="7" value="4" id="s-fatigue" oninput="slide('fatigue',this.value)">
     </div>
 
@@ -513,16 +513,13 @@
   </div>
 
   <div class="card">
-    <div class="card-title">Morning Reminder</div>
-    <div class="setting-row">
-      <div><div class="setting-lbl">Daily notification</div><div class="setting-sub">Remind me each morning</div></div>
-      <label class="toggle"><input type="checkbox" id="remToggle" onchange="toggleReminder()"><span class="tog-track"></span></label>
+    <div class="card-title">Reminders</div>
+    <div class="info-box" style="margin-top:0">
+      <strong>Set two daily alarms on your phone:</strong><br><br>
+      ⏰ <strong>Morning alarm</strong> — to log your readiness scores<br><br>
+      ⏰ <strong>Evening alarm</strong> — to log your training workload<br><br>
+      Label each one so you know which is which.
     </div>
-    <div class="setting-row">
-      <div class="setting-lbl">Reminder time</div>
-      <input type="time" id="remTime" value="07:30" onchange="saveRemTime()">
-    </div>
-    <div class="info-box" id="remStatus">Enable the toggle above to set a daily reminder.</div>
   </div>
 
   <div class="card">
@@ -667,7 +664,7 @@ function sendMorning() {
 `*Morning Readiness — ${name}*
 📅 ${date}
 
-*Hooper: ${t}/28 ${status}*
+*Hooper: ${t}/28*
 😴 Sleep: ${sc.sleep}/7
 😵 Fatigue: ${sc.fatigue}/7
 😤 Stress: ${sc.stress}/7
@@ -747,72 +744,48 @@ function renderHistory() {
   const hist = JSON.parse(ls('history')||'[]');
   const el   = document.getElementById('historyList');
   if (!hist.length) { el.innerHTML='<div class="empty-state">No entries yet.<br>Submit morning and evening data to see your history.</div>'; return; }
-  const col = t => t<=13?'var(--green)':t<=19?'var(--navy)':t<=23?'var(--amber)':'var(--red)';
 
-  // Build 7-day chart data
+  // Build 7-day workload chart
   const today = new Date();
   const days7 = Array.from({length:7}, (_,i) => {
     const d = new Date(today); d.setDate(d.getDate() - (6-i));
     return d.toISOString().slice(0,10);
   });
-  const morningByDate = {}, eveningByDate = {};
-  hist.forEach(e => {
-    if (e.type==='morning') morningByDate[e.date] = e;
-    if (e.type==='evening') eveningByDate[e.date] = e;
-  });
-  const hoopers = days7.map(d => morningByDate[d]?.total ?? null);
+  const eveningByDate = {};
+  hist.forEach(e => { if (e.type==='evening') eveningByDate[e.date] = e; });
   const workloads = days7.map(d => eveningByDate[d]?.total ?? null);
   const dayLabels = days7.map(d => { const dt=new Date(d); return ['Su','Mo','Tu','We','Th','Fr','Sa'][dt.getDay()]; });
+  const maxW = Math.max(...workloads.filter(v=>v!==null), 100);
 
-  // Chart rendering helper
-  function sparkBar(values, maxVal, barColor, nullColor) {
-    const w = 40, gap = 4, h = 60, n = values.length;
-    const bw = (w * n - gap * (n-1)) / n;
-    // actually use percentage width in SVG viewBox
-    const vbW = n * (w + gap) - gap;
+  function sparkBar(values, maxVal, barColor) {
+    const w=40, gap=4, h=60, n=values.length;
+    const vbW = n*(w+gap)-gap;
     const bars = values.map((v,i) => {
-      const x = i * (w + gap);
-      if (v === null) return `<rect x="${x}" y="0" width="${w}" height="${h}" rx="4" fill="${nullColor}" opacity="0.3"/>`;
-      const barH = Math.max(4, Math.round((v / maxVal) * h));
-      const y = h - barH;
-      return `<rect x="${x}" y="${y}" width="${w}" height="${barH}" rx="4" fill="${barColor}"/>`;
+      const x = i*(w+gap);
+      if (v===null) return `<rect x="${x}" y="0" width="${w}" height="${h}" rx="4" fill="var(--border)" opacity="0.4"/>`;
+      const barH = Math.max(4, Math.round((v/maxVal)*h));
+      return `<rect x="${x}" y="${h-barH}" width="${w}" height="${barH}" rx="4" fill="${barColor}"/>`;
     }).join('');
     return `<svg viewBox="0 0 ${vbW} ${h}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:70px;display:block">${bars}</svg>`;
   }
 
-  const maxH = Math.max(...hoopers.filter(v=>v!==null), 28);
-  const maxW = Math.max(...workloads.filter(v=>v!==null), 100);
-
   const labelsHTML = `<div style="display:flex;gap:4px;margin-top:4px">${dayLabels.map(l=>`<div style="flex:1;text-align:center;font-size:10px;color:var(--sub);font-weight:600">${l}</div>`).join('')}</div>`;
 
-  const chartsHTML = `
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-title">7-day Hooper Total</div>
-      ${sparkBar(hoopers, 28, 'var(--navy)', 'var(--border)')}
-      ${labelsHTML}
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--sub);margin-top:6px">
-        <span>Low = better</span><span>Max 28</span>
-      </div>
-    </div>
+  const chartHTML = `
     <div class="card" style="margin-bottom:14px">
       <div class="card-title">7-day Training Load (AU)</div>
-      ${sparkBar(workloads, maxW, 'var(--green)', 'var(--border)')}
+      ${sparkBar(workloads, maxW, 'var(--green)')}
       ${labelsHTML}
       <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--sub);margin-top:6px">
         <span>Daily total AU</span><span>Grey = no data</span>
       </div>
     </div>`;
 
-  // Log entries below charts
-  const entriesHTML = hist.slice(0,14).map(e => {
+  const entriesHTML = hist.slice(0,20).map(e => {
     if (e.type === 'morning') return `
       <div class="history-item">
         <div class="hi-date">🌅 ${e.datetime}${e.name?' · '+e.name:''}</div>
-        <div class="hi-row">
-          <div class="hi-score" style="color:${col(e.total)}">${e.total}</div>
-          <div class="hi-status" style="color:${col(e.total)}">${e.status}</div>
-        </div>
-        <div class="hi-detail">😴${e.sleep} 😵${e.fatigue} 😤${e.stress} 💪${e.soreness}</div>
+        <div class="hi-detail">😴 Sleep ${e.sleep} &nbsp;·&nbsp; 😵 Fatigue ${e.fatigue} &nbsp;·&nbsp; 😤 Stress ${e.stress} &nbsp;·&nbsp; 💪 Soreness ${e.soreness}</div>
         ${e.notes?`<div class="hi-notes">"${e.notes}"</div>`:''}
       </div>`;
     else return `
@@ -823,7 +796,7 @@ function renderHistory() {
       </div>`;
   }).join('');
 
-  el.innerHTML = chartsHTML + entriesHTML;
+  el.innerHTML = chartHTML + entriesHTML;
 }
 
 // ── Settings ──────────────────────────────────────────────────────────────────
@@ -905,17 +878,17 @@ function updateRemStatus(on,time,override) { document.getElementById('remStatus'
     <div class="modal-handle"></div>
     <div class="modal-title">Borg CR10 RPE Scale</div>
     <div class="modal-sub">Rate how hard each session felt.<br><strong style="color:var(--green)">Important: 3 = Moderate — not 5.</strong></div>
-    <div class="borg-row borg-0"><div class="borg-num" style="color:#aaa">0</div><div><div class="borg-desc">Nothing at all</div><div class="borg-hint">Complete rest</div></div></div>
-    <div class="borg-row borg-1"><div class="borg-num" style="color:var(--green)">1</div><div><div class="borg-desc">Very light</div><div class="borg-hint">Easy walking pace</div></div></div>
-    <div class="borg-row borg-2"><div class="borg-num" style="color:var(--green)">2</div><div><div class="borg-desc">Light</div><div class="borg-hint">Comfortable, could go for hours</div></div></div>
-    <div class="borg-row borg-3"><div class="borg-num" style="color:var(--green);font-weight:900">3</div><div><div class="borg-desc" style="color:var(--green)">⭐ Moderate</div><div class="borg-hint">Noticeable effort, can speak easily</div></div></div>
-    <div class="borg-row borg-4"><div class="borg-num" style="color:var(--amber)">4</div><div><div class="borg-desc">Somewhat hard</div><div class="borg-hint">Starting to push, breathing heavier</div></div></div>
-    <div class="borg-row borg-5"><div class="borg-num" style="color:var(--amber)">5</div><div><div class="borg-desc">Hard</div><div class="borg-hint">Uncomfortable, short sentences only</div></div></div>
-    <div class="borg-row borg-6"><div class="borg-num" style="color:var(--amber)">6</div><div><div class="borg-desc">Hard+</div><div class="borg-hint">Sustained effort, hard to talk</div></div></div>
-    <div class="borg-row borg-7"><div class="borg-num" style="color:var(--red)">7</div><div><div class="borg-desc">Very hard</div><div class="borg-hint">Very strenuous, near limit of comfort</div></div></div>
-    <div class="borg-row borg-8"><div class="borg-num" style="color:var(--red)">8</div><div><div class="borg-desc">Very hard+</div><div class="borg-hint">Very difficult to maintain</div></div></div>
-    <div class="borg-row borg-9"><div class="borg-num" style="color:var(--red)">9</div><div><div class="borg-desc">Extremely hard</div><div class="borg-hint">Almost maximal effort</div></div></div>
-    <div class="borg-row borg-10"><div class="borg-num" style="color:var(--red);font-weight:900">10</div><div><div class="borg-desc" style="color:var(--red);font-weight:800">Maximal</div><div class="borg-hint">Absolute maximum — cannot go harder</div></div></div>
+    <div class="borg-row borg-0"><div class="borg-num" style="color:#aaa">0</div><div><div class="borg-desc">Nothing at all</div></div></div>
+    <div class="borg-row borg-1"><div class="borg-num" style="color:var(--green)">1</div><div><div class="borg-desc">Very light</div></div></div>
+    <div class="borg-row borg-2"><div class="borg-num" style="color:var(--green)">2</div><div><div class="borg-desc">Light</div></div></div>
+    <div class="borg-row borg-3"><div class="borg-num" style="color:var(--green);font-weight:900">3</div><div><div class="borg-desc" style="color:var(--green)">Moderate</div></div></div>
+    <div class="borg-row borg-4"><div class="borg-num" style="color:var(--amber)">4</div><div><div class="borg-desc">Somewhat hard</div></div></div>
+    <div class="borg-row borg-5"><div class="borg-num" style="color:var(--amber)">5</div><div><div class="borg-desc">Hard</div></div></div>
+    <div class="borg-row borg-6"><div class="borg-num" style="color:var(--amber)">6</div><div><div class="borg-desc">Hard+</div></div></div>
+    <div class="borg-row borg-7"><div class="borg-num" style="color:var(--red)">7</div><div><div class="borg-desc">Very hard</div></div></div>
+    <div class="borg-row borg-8"><div class="borg-num" style="color:var(--red)">8</div><div><div class="borg-desc">Very hard+</div></div></div>
+    <div class="borg-row borg-9"><div class="borg-num" style="color:var(--red)">9</div><div><div class="borg-desc">Extremely hard</div></div></div>
+    <div class="borg-row borg-10"><div class="borg-num" style="color:var(--red);font-weight:900">10</div><div><div class="borg-desc" style="color:var(--red);font-weight:800">Maximal</div></div></div>
     <button class="btn-close-modal" onclick="document.getElementById('borgModal').style.display='none'">Close</button>
   </div>
 </div>
