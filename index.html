@@ -653,18 +653,19 @@ function openWA(msg) {
 function sendMorning() {
   const t      = sc.sleep + sc.fatigue + sc.stress + sc.soreness;
   const status = t<=13?'🟢 Ready':t<=19?'⚪ OK':t<=23?'🟡 Monitor':'🔴 High load';
+  const pct   = Math.round(((28 - t) / 24) * 100);
   const name   = ls('athleteName')||'Athlete';
   const notes  = document.getElementById('morningNotes').value.trim();
   const date   = new Date().toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
 
-  const entry = { date: new Date().toISOString().slice(0,10), datetime: date, name, type:'morning', ...sc, total:t, status, notes };
+  const entry = { date: new Date().toISOString().slice(0,10), datetime: date, name, type:'morning', ...sc, total:t, pct, status, notes };
   persist('morning', entry);
 
   const msg =
 `*Morning Readiness — ${name}*
 📅 ${date}
 
-*Hooper: ${t}/28*
+*Hooper: ${t}/28 — ${pct}%*
 😴 Sleep: ${sc.sleep}/7
 😵 Fatigue: ${sc.fatigue}/7
 😤 Stress: ${sc.stress}/7
@@ -785,7 +786,7 @@ function renderHistory() {
     if (e.type === 'morning') return `
       <div class="history-item">
         <div class="hi-date">🌅 ${e.datetime}${e.name?' · '+e.name:''}</div>
-        <div class="hi-detail">😴 Sleep ${e.sleep} &nbsp;·&nbsp; 😵 Fatigue ${e.fatigue} &nbsp;·&nbsp; 😤 Stress ${e.stress} &nbsp;·&nbsp; 💪 Soreness ${e.soreness}</div>
+        <div class="hi-detail">${e.total}/28 &nbsp;·&nbsp; ${e.pct !== undefined ? e.pct : Math.round(((28-e.total)/24)*100)}% &nbsp;·&nbsp; 😴${e.sleep} 😵${e.fatigue} 😤${e.stress} 💪${e.soreness}</div>
         ${e.notes?`<div class="hi-notes">"${e.notes}"</div>`:''}
       </div>`;
     else return `
