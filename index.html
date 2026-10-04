@@ -669,8 +669,8 @@ function sendMorning() {
 😤 Stress: ${sc.stress}/7
 💪 Soreness: ${sc.soreness}/7${notes?'\n📝 '+notes:''}`;
 
-  resetMorning();
   openWA(msg);
+  resetMorning();
 }
 
 // ── Evening send ──────────────────────────────────────────────────────────────
@@ -700,11 +700,11 @@ function sendEvening() {
   const msg =
 `*Training Workload — ${name}*
 
+${lines || '  No sessions logged'}
 
 *Total: ${total.toLocaleString()} AU*${notes?'\n📝 '+notes:''}`;
-
-  clearEvening();
   openWA(msg);
+  clearEvening();
 }
 
 // ── Save locally only ─────────────────────────────────────────────────────────
