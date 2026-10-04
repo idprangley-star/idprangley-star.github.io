@@ -481,7 +481,7 @@
       Send Workload
     </button>
     <button class="btn-save" onclick="saveLocal('evening')">💾 Save locally only</button>
-    <button class="btn-save" onclick="clearEvening()" style="color:var(--red);border-color:var(--red)">🗑 Clear all fields</button>
+    <button class="btn-save" onclick="clearEvening(true)" style="color:var(--red);border-color:var(--red)">🗑 Clear all fields</button>
   </div>
 </div>
 </div>
@@ -663,14 +663,13 @@ function sendMorning() {
 
   const msg =
 `*Morning Readiness — ${name}*
-📅 ${date}
-
 *Hooper: ${t}/28 — ${pct}%*
 😴 Sleep: ${sc.sleep}/7
 😵 Fatigue: ${sc.fatigue}/7
 😤 Stress: ${sc.stress}/7
 💪 Soreness: ${sc.soreness}/7${notes?'\n📝 '+notes:''}`;
 
+  resetMorning();
   openWA(msg);
 }
 
@@ -700,12 +699,11 @@ function sendEvening() {
 
   const msg =
 `*Training Workload — ${name}*
-📅 ${date}
 
-${lines || '  No sessions logged'}
 
 *Total: ${total.toLocaleString()} AU*${notes?'\n📝 '+notes:''}`;
 
+  clearEvening();
   openWA(msg);
 }
 
@@ -721,6 +719,8 @@ function saveLocal(type) {
     persist('evening', { date: new Date().toISOString().slice(0,10), datetime: new Date().toLocaleString('en-GB'), name: ls('athleteName')||'Athlete', type:'evening', sessions: sessionData, total, notes: document.getElementById('eveningNotes').value.trim() });
   }
   toast('💾 Saved locally');
+  if (type === 'morning') resetMorning();
+  if (type === 'evening') clearEvening();
 }
 
 // ── Persist ───────────────────────────────────────────────────────────────────
@@ -836,9 +836,20 @@ function clearData() {
   toast('History cleared');
 }
 
+// ── Reset morning fields ─────────────────────────────────────────────────────
+function resetMorning() {
+  ['sleep','fatigue','stress','soreness'].forEach(key => {
+    document.getElementById('s-'+key).value = 4;
+    slide(key, 4, true);
+  });
+  document.getElementById('morningNotes').value = '';
+  document.getElementById('doneMorning').style.display = 'none';
+  lsd(todayKey('morning'));
+}
+
 // ── Clear evening fields ─────────────────────────────────────────────────────
-function clearEvening() {
-  if (!confirm('Clear all session data?')) return;
+function clearEvening(confirm_first) {
+  if (confirm_first && !confirm('Clear all session data?')) return;
   ['ms1','ms2','md','oc1','oc2','occ','ag','pw','st','bm','ae','ot'].forEach(key => {
     document.getElementById('t-'+key).value = '';
     document.getElementById('r-'+key).value = '';
