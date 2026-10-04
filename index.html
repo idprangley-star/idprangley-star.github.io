@@ -663,6 +663,7 @@ function sendMorning() {
 
   const msg =
 `*Morning Readiness — ${name}*
+${date}
 *Hooper: ${t}/28 — ${pct}%*
 😴 Sleep: ${sc.sleep}/7
 😵 Fatigue: ${sc.fatigue}/7
@@ -699,6 +700,7 @@ function sendEvening() {
 
   const msg =
 `*Training Workload — ${name}*
+${date}
 
 ${lines || '  No sessions logged'}
 
