@@ -336,6 +336,7 @@
       Send Morning Check
     </button>
     <button class="btn-save" onclick="saveLocal('morning')">💾 Save locally only</button>
+    <button class="btn-save" onclick="clearMorning()" style="color:var(--red);border-color:var(--red)">🗑 Clear all fields</button>
   </div>
 </div>
 </div>
@@ -664,6 +665,7 @@ function sendMorning() {
   const msg =
 `*Morning Readiness — ${name}*
 ${date}
+
 *Hooper: ${t}/28 — ${pct}%*
 😴 Sleep: ${sc.sleep}/7
 😵 Fatigue: ${sc.fatigue}/7
@@ -800,6 +802,18 @@ function renderHistory() {
   }).join('');
 
   el.innerHTML = chartHTML + entriesHTML;
+}
+
+// ── Clear morning fields ─────────────────────────────────────────────────────
+function clearMorning() {
+  ['sleep','fatigue','stress','soreness'].forEach(key => {
+    document.getElementById('s-'+key).value = 4;
+    slide(key, 4, true);
+  });
+  document.getElementById('morningNotes').value = '';
+  document.getElementById('doneMorning').style.display = 'none';
+  lsd(todayKey('morning'));
+  toast('Fields cleared');
 }
 
 // ── Settings ──────────────────────────────────────────────────────────────────
