@@ -1,4 +1,4 @@
-const CACHE = 'readiness-v1';
+const CACHE = 'readiness-v3';
 const ASSETS = ['/', '/index.html', '/manifest.json', '/icon.png'];
 
 self.addEventListener('install', e => {
