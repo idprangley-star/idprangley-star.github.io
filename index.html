@@ -573,6 +573,9 @@ window.addEventListener('load', () => {
   if (name) document.getElementById('headerName').textContent = name;
   loadSettings();
   checkDone();
+  // Set workload date picker to today
+  const _wd = document.getElementById('workloadDate');
+  if (_wd) _wd.value = new Date().toISOString().slice(0,10);
   initSliders();
 });
 
@@ -637,6 +640,17 @@ function updateTotalAU() {
 // ── Already done today? ───────────────────────────────────────────────────────
 function todayKey(type) { return type+'_'+new Date().toISOString().slice(0,10); }
 
+function getWorkloadDate() {
+  const el = document.getElementById('workloadDate');
+  return el && el.value ? el.value : new Date().toISOString().slice(0,10);
+}
+
+function getWorkloadDateFormatted() {
+  const d = getWorkloadDate();
+  const dt = new Date(d + 'T12:00:00'); // noon to avoid DST issues
+  return dt.toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+}
+
 function checkDone() {
   if (ls(todayKey('morning'))) document.getElementById('doneMorning').style.display = 'block';
   if (ls(todayKey('evening'))) document.getElementById('doneEvening').style.display = 'block';
@@ -680,7 +694,9 @@ ${date}
 function sendEvening() {
   const name  = ls('athleteName')||'Athlete';
   const notes = document.getElementById('eveningNotes').value.trim();
-  const date  = new Date().toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+  const _selDate = getWorkloadDate();
+  const _selDt = new Date(_selDate + 'T12:00:00');
+  const date  = _selDt.toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short'}) + ' · ' + new Date().toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit'});
   const total = SESSIONS.reduce((sum, s) => sum + getAU(s.key), 0);
 
   // Build session lines — only include sessions with data
@@ -720,7 +736,7 @@ function saveLocal(type) {
   } else {
     const total = SESSIONS.reduce((sum, s) => sum + getAU(s.key), 0);
     const sessionData = SESSIONS.reduce((obj, s) => { obj[s.key] = { au: getAU(s.key) }; return obj; }, {});
-    persist('evening', { date: new Date().toISOString().slice(0,10), datetime: new Date().toLocaleString('en-GB'), name: ls('athleteName')||'Athlete', type:'evening', sessions: sessionData, total, notes: document.getElementById('eveningNotes').value.trim() });
+    persistEvening({ date: getWorkloadDate(), datetime: new Date().toLocaleString('en-GB'), name: ls('athleteName')||'Athlete', type:'evening', sessions: sessionData, total, notes: document.getElementById('eveningNotes').value.trim() });
   }
   toast('💾 Saved locally');
   if (type === 'morning') resetMorning();
@@ -728,6 +744,16 @@ function saveLocal(type) {
 }
 
 // ── Persist ───────────────────────────────────────────────────────────────────
+function persistEvening(entry) {
+  const key = 'evening_' + getWorkloadDate();
+  lss(key, JSON.stringify(entry));
+  const hist = JSON.parse(ls('history')||'[]');
+  const idx  = hist.findIndex(e => e.date === entry.date && e.type === 'evening');
+  if (idx >= 0) hist[idx] = entry; else hist.unshift(entry);
+  lss('history', JSON.stringify(hist.slice(0,180)));
+  document.getElementById('doneEvening').style.display = 'block';
+}
+
 function persist(type, entry) {
   lss(todayKey(type), JSON.stringify(entry));
   const hist = JSON.parse(ls('history')||'[]');
@@ -874,6 +900,8 @@ function clearEvening(confirm_first) {
     document.getElementById('r-'+key).value = '';
     document.getElementById('au-'+key).textContent = '— AU';
   });
+  const _wdClear = document.getElementById('workloadDate');
+  if (_wdClear) _wdClear.value = new Date().toISOString().slice(0,10);
   document.getElementById('eveningNotes').value = '';
   document.getElementById('totalAU').textContent = '0 AU';
   document.getElementById('doneEvening').style.display = 'none';
