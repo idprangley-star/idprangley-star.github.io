@@ -750,7 +750,14 @@ function saveLocal(type) {
 
 // ── Persist ───────────────────────────────────────────────────────────────────
 function persistEvening(entry) {
-  const key = 'evening_' + getWorkloadDate();
+  // Build a display datetime using the chosen date + current time
+  const chosenDate = getWorkloadDate();
+  const now = new Date();
+  const chosenDt = new Date(chosenDate + 'T12:00:00');
+  const dayStr = chosenDt.toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+  const timeStr = now.toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  entry.datetime = dayStr + ' · ' + timeStr;
+  const key = 'evening_' + chosenDate;
   lss(key, JSON.stringify(entry));
   const hist = JSON.parse(ls('history')||'[]');
   const idx  = hist.findIndex(e => e.date === entry.date && e.type === 'evening');
@@ -790,7 +797,7 @@ function renderHistory() {
   const eveningByDate = {};
   hist.forEach(e => { if (e.type==='evening') eveningByDate[e.date] = e; });
   const workloads = days7.map(d => eveningByDate[d]?.total ?? null);
-  const dayLabels = days7.map(d => { const dt=new Date(d); return ['Su','Mo','Tu','We','Th','Fr','Sa'][dt.getDay()]; });
+  const dayLabels = days7.map(d => { const dt=new Date(d + 'T12:00:00'); return ['Su','Mo','Tu','We','Th','Fr','Sa'][dt.getDay()]; });
   const maxW = Math.max(...workloads.filter(v=>v!==null), 100);
 
   function sparkBar(values, maxVal, barColor) {
