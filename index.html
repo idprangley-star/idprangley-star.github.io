@@ -551,6 +551,12 @@ const ls  = k     => { try { return localStorage.getItem(k); }  catch(e){ return
 const lss = (k,v) => { try { localStorage.setItem(k,v); }       catch(e){} };
 const lsd = k     => { try { localStorage.removeItem(k); }      catch(e){} };
 
+// Local calendar date as YYYY-MM-DD (toISOString() is UTC, which shifts the day around midnight in BST)
+function localISO(d = new Date()) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
 // Hooper scores
 const sc = { sleep:4, fatigue:4, stress:4, soreness:4 };
 
@@ -580,7 +586,7 @@ window.addEventListener('load', () => {
   checkDone();
   // Set workload date picker to today
   const _wd = document.getElementById('workloadDate');
-  if (_wd) _wd.value = new Date().toISOString().slice(0,10);
+  if (_wd) { _wd.value = localISO(); _wd.addEventListener('change', checkDone); }
   initSliders();
 });
 
@@ -607,7 +613,7 @@ function slide(key, val, init) {
   el.style.setProperty('--pct', pct);
   const fill = val<=2?'var(--green)':val<=4?'var(--navy)':val<=5?'var(--amber)':'var(--red)';
   el.style.setProperty('--track-fill', fill);
-  disp.textContent = val; disp.style.color = fill;
+  if (disp) { disp.textContent = val; disp.style.color = fill; }
   updateTotal();
 }
 
@@ -615,6 +621,7 @@ function updateTotal() {
   const t  = sc.sleep + sc.fatigue + sc.stress + sc.soreness;
   const el = document.getElementById('hTotal');
   const st = document.getElementById('hStatus');
+  if (!el || !st) return;
   el.textContent = t;
   if      (t<=13) { el.className='hb-score c-green'; st.textContent='🟢 Ready';     st.style.color='var(--green)'; }
   else if (t<=19) { el.className='hb-score c-navy';  st.textContent='⚪ OK';         st.style.color='var(--navy)';  }
@@ -643,11 +650,11 @@ function updateTotalAU() {
 }
 
 // ── Already done today? ───────────────────────────────────────────────────────
-function todayKey(type) { return type+'_'+new Date().toISOString().slice(0,10); }
+function todayKey(type) { return type+'_'+localISO(); }
 
 function getWorkloadDate() {
   const el = document.getElementById('workloadDate');
-  return el && el.value ? el.value : new Date().toISOString().slice(0,10);
+  return el && el.value ? el.value : localISO();
 }
 
 function getWorkloadDateFormatted() {
@@ -658,7 +665,7 @@ function getWorkloadDateFormatted() {
 
 function checkDone() {
   if (ls(todayKey('morning'))) document.getElementById('doneMorning').style.display = 'block';
-  if (ls(todayKey('evening'))) document.getElementById('doneEvening').style.display = 'block';
+  document.getElementById('doneEvening').style.display = ls('evening_'+getWorkloadDate()) ? 'block' : 'none';
 }
 
 // ── WhatsApp helpers ──────────────────────────────────────────────────────────
@@ -678,7 +685,7 @@ function sendMorning() {
   const notes  = document.getElementById('morningNotes').value.trim();
   const date   = new Date().toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
 
-  const entry = { date: new Date().toISOString().slice(0,10), datetime: date, name, type:'morning', ...sc, total:t, pct, status, notes };
+  const entry = { date: localISO(), datetime: date, name, type:'morning', ...sc, total:t, pct, status, notes };
   persist('morning', entry);
 
   const msg =
@@ -718,8 +725,8 @@ function sendEvening() {
     return obj;
   }, {});
 
-  const entry = { date: new Date().toISOString().slice(0,10), datetime: date, name, type:'evening', sessions: sessionData, total, notes };
-  persist('evening', entry);
+  const entry = { date: _selDate, datetime: date, name, type:'evening', sessions: sessionData, total, notes };
+  persistEvening(entry);
 
   const msg =
 `*Training Workload — ${name}*
@@ -737,7 +744,7 @@ function saveLocal(type) {
   if (type === 'morning') {
     const t = sc.sleep + sc.fatigue + sc.stress + sc.soreness;
     const status = t<=13?'🟢 Ready':t<=19?'⚪ OK':t<=23?'🟡 Monitor':'🔴 High load';
-    persist('morning', { date: new Date().toISOString().slice(0,10), datetime: new Date().toLocaleString('en-GB'), name: ls('athleteName')||'Athlete', type:'morning', ...sc, total:t, status, notes: document.getElementById('morningNotes').value.trim() });
+    persist('morning', { date: localISO(), datetime: new Date().toLocaleString('en-GB'), name: ls('athleteName')||'Athlete', type:'morning', ...sc, total:t, status, notes: document.getElementById('morningNotes').value.trim() });
   } else {
     const total = SESSIONS.reduce((sum, s) => sum + getAU(s.key), 0);
     const sessionData = SESSIONS.reduce((obj, s) => { obj[s.key] = { au: getAU(s.key) }; return obj; }, {});
@@ -749,6 +756,10 @@ function saveLocal(type) {
 }
 
 // ── Persist ───────────────────────────────────────────────────────────────────
+function sortHist(h) {
+  return h.sort((a,b) => (b.date||'').localeCompare(a.date||'') || (a.type==='evening' ? -1 : 1));
+}
+
 function persistEvening(entry) {
   // Build a display datetime using the chosen date + current time
   const chosenDate = getWorkloadDate();
@@ -762,7 +773,7 @@ function persistEvening(entry) {
   const hist = JSON.parse(ls('history')||'[]');
   const idx  = hist.findIndex(e => e.date === entry.date && e.type === 'evening');
   if (idx >= 0) hist[idx] = entry; else hist.unshift(entry);
-  lss('history', JSON.stringify(hist.slice(0,180)));
+  lss('history', JSON.stringify(sortHist(hist).slice(0,180)));
   document.getElementById('doneEvening').style.display = 'block';
 }
 
@@ -771,7 +782,7 @@ function persist(type, entry) {
   const hist = JSON.parse(ls('history')||'[]');
   const idx  = hist.findIndex(e => e.date === entry.date && e.type === type);
   if (idx >= 0) hist[idx] = entry; else hist.unshift(entry);
-  lss('history', JSON.stringify(hist.slice(0,180)));
+  lss('history', JSON.stringify(sortHist(hist).slice(0,180)));
   document.getElementById(type==='morning'?'doneMorning':'doneEvening').style.display = 'block';
 }
 
@@ -784,7 +795,7 @@ function toast(msg, ms=3000) {
 
 // ── History ───────────────────────────────────────────────────────────────────
 function renderHistory() {
-  const hist = JSON.parse(ls('history')||'[]');
+  const hist = sortHist(JSON.parse(ls('history')||'[]'));
   const el   = document.getElementById('historyList');
   if (!hist.length) { el.innerHTML='<div class="empty-state">No entries yet.<br>Submit morning and evening data to see your history.</div>'; return; }
 
@@ -792,7 +803,7 @@ function renderHistory() {
   const today = new Date();
   const days7 = Array.from({length:7}, (_,i) => {
     const d = new Date(today); d.setDate(d.getDate() - (6-i));
-    return d.toISOString().slice(0,10);
+    return localISO(d);
   });
   const eveningByDate = {};
   hist.forEach(e => { if (e.type==='evening') eveningByDate[e.date] = e; });
@@ -829,13 +840,13 @@ function renderHistory() {
       <div class="history-item">
         <div class="hi-date">🌅 ${e.datetime}${e.name?' · '+e.name:''}</div>
         <div class="hi-detail">${e.total}/28 &nbsp;·&nbsp; ${e.pct !== undefined ? e.pct : Math.round(((28-e.total)/24)*100)}% &nbsp;·&nbsp; 😴${e.sleep} 😵${e.fatigue} 😤${e.stress} 💪${e.soreness}</div>
-        ${e.notes?`<div class="hi-notes">"${e.notes}"</div>`:''}
+        ${e.notes?`<div class="hi-notes">"${esc(e.notes)}"</div>`:''}
       </div>`;
     else return `
       <div class="history-item">
         <div class="hi-date">🏃 ${e.datetime}${e.name?' · '+e.name:''}</div>
         <div class="hi-load">Total: ${(e.total||0).toLocaleString()} AU</div>
-        ${e.notes?`<div class="hi-notes">"${e.notes}"</div>`:''}
+        ${e.notes?`<div class="hi-notes">"${esc(e.notes)}"</div>`:''}
       </div>`;
   }).join('');
 
@@ -863,11 +874,6 @@ function loadSettings() {
   document.getElementById('nameDisplay').textContent = name||'Not set';
   if (name) document.getElementById('headerName').textContent = name;
   document.getElementById('waDisplay').textContent = ls('waNumber')||'Not set';
-  const remOn = ls('remOn')==='true', remTime = ls('remTime')||'07:30';
-  document.getElementById('remToggle').checked = remOn;
-  document.getElementById('remTime').value = remTime;
-  if (remOn) scheduleRem(remTime);
-  updateRemStatus(remOn, remTime);
 }
 
 function refreshSettings() { loadSettings(); }
@@ -913,7 +919,7 @@ function clearEvening(confirm_first) {
     document.getElementById('au-'+key).textContent = '— AU';
   });
   const _wdClear = document.getElementById('workloadDate');
-  if (_wdClear) _wdClear.value = new Date().toISOString().slice(0,10);
+  if (_wdClear) _wdClear.value = localISO();
   document.getElementById('eveningNotes').value = '';
   document.getElementById('totalAU').textContent = '0 AU';
   document.getElementById('doneEvening').style.display = 'none';
@@ -921,26 +927,6 @@ function clearEvening(confirm_first) {
   toast('Fields cleared');
 }
 
-// ── Reminder ──────────────────────────────────────────────────────────────────
-let remInterval = null;
-async function toggleReminder() {
-  const on = document.getElementById('remToggle').checked, time = document.getElementById('remTime').value;
-  if (on) {
-    if (!('Notification' in window)) { alert('Add the app to your home screen first.'); document.getElementById('remToggle').checked=false; return; }
-    if (Notification.permission==='default') { const p=await Notification.requestPermission(); if(p!=='granted'){document.getElementById('remToggle').checked=false;updateRemStatus(false,time,'❌ Permission denied.');return;} }
-    if (Notification.permission==='denied') { document.getElementById('remToggle').checked=false; updateRemStatus(false,time,'❌ Blocked — enable in Settings → Notifications.'); return; }
-    lss('remOn','true'); scheduleRem(time); updateRemStatus(true,time); toast('Reminder set for '+time);
-  } else { lss('remOn','false'); if(remInterval){clearInterval(remInterval);remInterval=null;} updateRemStatus(false,time); }
-}
-function saveRemTime() { const t=document.getElementById('remTime').value; lss('remTime',t); if(ls('remOn')==='true'){if(remInterval){clearInterval(remInterval);remInterval=null;}scheduleRem(t);toast('Updated to '+t);} updateRemStatus(ls('remOn')==='true',t); }
-function scheduleRem(timeStr) {
-  if (remInterval) clearInterval(remInterval);
-  remInterval = setInterval(()=>{
-    const now=new Date(), hhmm=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
-    if(hhmm===timeStr){const k='notified_'+now.toISOString().slice(0,10);if(!ls(k)){lss(k,'1');new Notification('Morning readiness check 🌅',{body:'Log your Hooper scores — 60 seconds.',icon:'icon.png'});}}
-  },30000);
-}
-function updateRemStatus(on,time,override) { document.getElementById('remStatus').textContent=override||(on?`✅ Reminder set daily at ${time}.`:'Enable the toggle above to set a daily reminder.'); }
 </script>
 
 <!-- Borg Scale Modal -->
