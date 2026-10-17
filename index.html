@@ -1,2685 +1,953 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Tennis Logger</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Readiness">
+<meta name="theme-color" content="#1D4E8F">
+<title>Daily Readiness</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
 <style>
-/* ─── TOKENS ─────────────────────────────────────────── */
-:root {
-  --bg:        #0d0f14;
-  --bg2:       #161a23;
-  --bg3:       #1e2332;
-  --border:    #2a3045;
-  --fg:        #e8ecf4;
-  --fg2:       #8c96b0;
-  --accent:    #4f8ef7;
-  --accent2:   #6c63ff;
-  --green:     #2dcc6f;
-  --red:       #e53e3e;
-  --amber:     #f59e0b;
-  --purple:    #9c6fe4;
-  --pill-fh:   #166534;
-  --pill-bh:   #1e3a6e;
-  --pill-net:  #4c1d95;
-  --pill-ace:  #14532d;
-  --pill-df:   #7f1d1d;
-  --pill-norm: #1e3a6e;
-  color-scheme: dark;
-}
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --bg:  #f0f2f7; --bg2: #fff; --bg3: #e4e8f0;
-    --border: #d0d5e0; --fg: #111827; --fg2: #6b7280;
-    color-scheme: light;
+  :root {
+    --navy:  #1D4E8F;
+    --blue:  #2E75B6;
+    --green: #1D9E75;
+    --wa:    #25D366;
+    --amber: #E8A020;
+    --red:   #C00000;
+    --light: #F4F7FB;
+    --border:#DDE4EE;
+    --text:  #1A1A2E;
+    --sub:   #6B7A99;
+    --white: #FFFFFF;
+    --rad:   14px;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bot: env(safe-area-inset-bottom, 0px);
   }
-}
-:root[data-theme="light"] {
-  --bg:  #f0f2f7; --bg2: #fff; --bg3: #e4e8f0;
-  --border: #d0d5e0; --fg: #111827; --fg2: #6b7280;
-  color-scheme: light;
-}
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: var(--light); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: var(--text); }
 
-/* ─── RESET ──────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: var(--bg); color: var(--fg);
-  font-family: 'Inter', system-ui, sans-serif; font-size: 15px;
-  -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
-  min-height: 100vh;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 0;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-}
-button {
-  font-family: inherit; cursor: pointer; border: none; outline: none;
-  transition: opacity .12s, background .12s, transform .08s;
-}
-button:active { transform: scale(.97); }
-button:disabled { opacity: .35; cursor: default; transform: none; }
-input, select {
-  font-family: inherit;
-  background: var(--bg3); color: var(--fg);
-  border: 1px solid var(--border); border-radius: 8px;
-  padding: 10px 12px; font-size: 15px; width: 100%;
-}
-input:focus, select:focus { outline: 2px solid var(--accent); border-color: transparent; }
-h1 { font-size: 1.5rem; font-weight: 800; }
-h2 { font-size: 1.15rem; font-weight: 700; }
+  header {
+    background: var(--navy);
+    padding: calc(var(--safe-top) + 16px) 20px 16px;
+  }
+  header h1   { color: #fff; font-size: 18px; font-weight: 700; }
+  header .sub { color: rgba(255,255,255,0.65); font-size: 13px; margin-top: 2px; }
 
-/* ─── SCREENS ────────────────────────────────────────── */
-.screen { display: none; }
-.screen.active { display: flex; flex-direction: column; min-height: 100vh; }
+  .tab-bar {
+    display: flex; background: var(--navy);
+    padding: 0 16px; gap: 4px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .tab-btn {
+    flex: 1; padding: 10px 0; font-size: 13px; font-weight: 600;
+    color: rgba(255,255,255,0.55); background: none; border: none;
+    border-bottom: 3px solid transparent; cursor: pointer; transition: 0.2s;
+  }
+  .tab-btn.active { color: #fff; border-bottom-color: var(--wa); }
 
-/* ─── TOP BAR ────────────────────────────────────────── */
-.topbar {
-  display: flex; align-items: center; gap: 8px;
-  padding: 10px 16px; background: var(--bg2);
-  border-bottom: 1px solid var(--border);
-  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 100;
-}
-.topbar-title { font-weight: 700; font-size: 14px; flex: 1; }
-.topbar-btn {
-  background: var(--bg3); color: var(--fg);
-  border-radius: 8px; padding: 6px 12px;
-  font-size: 13px; font-weight: 600;
-}
-.topbar-btn.red { background: var(--red); color: #fff; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
 
-/* ─── SETUP SCREEN ───────────────────────────────────── */
-#setup { padding: 24px 0 32px; gap: 20px; }
-.setup-logo { text-align: center; padding: 8px 16px; }
-.setup-logo span { font-size: 2rem; }
-.setup-card {
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 16px; padding: 20px; margin: 0 0; gap: 14px;
-  display: flex; flex-direction: column;
-}
-.form-row { display: flex; flex-direction: column; gap: 6px; }
-.form-label { font-size: 12px; font-weight: 600; color: var(--fg2); text-transform: uppercase; letter-spacing: .05em; }
-.btn-group { display: flex; gap: 8px; }
-.opt-btn {
-  flex: 1; padding: 12px 8px; border-radius: 10px;
-  background: var(--bg3); color: var(--fg);
-  font-size: 14px; font-weight: 600;
-  border: 2px solid transparent;
-}
-.opt-btn.sel { background: var(--accent); color: #fff; border-color: var(--accent); }
-.grid-3x2 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-.start-btn {
-  margin: 0; width: 100%; padding: 16px;
-  background: var(--green); color: #fff;
-  font-size: 17px; font-weight: 800; border-radius: 14px;
-}
+  main {
+    padding: 16px 16px calc(var(--safe-bot) + 140px);
+    max-width: 480px; margin: 0 auto;
+  }
 
-/* ─── LOG SCREEN (landscape 3-col) ──────────────────── */
-#log-screen { padding: 0; height: 100vh; overflow: hidden; }
-#log-screen .topbar { flex-shrink: 0; }
-.log-body {
-  display: grid;
-  grid-template-columns: 0.8fr 1.8fr 0.7fr;
-  gap: 0;
-  height: calc(100vh - 48px - env(safe-area-inset-top, 0px));
-  overflow: hidden;
-}
-.log-col {
-  display: flex; flex-direction: column; gap: 6px;
-  padding: 8px 6px; border-right: 1px solid var(--border);
-  overflow-y: auto; overflow-x: hidden;
-}
-/* Middle col must NOT scroll — so the FH/BH flex-grow chain reaches the buttons */
-.log-body > .log-col:nth-child(2) { overflow: hidden; }
-/* Left col must NOT scroll either — all fits in landscape */
-.log-body > .log-col:nth-child(1) { overflow: hidden; }
-.log-col:last-child { border-right: none; }
-.col-label {
-  font-size: 10px; font-weight: 700; color: var(--fg2);
-  text-transform: uppercase; letter-spacing: .08em;
-  padding-bottom: 2px; flex-shrink: 0;
-}
+  .card {
+    background: var(--white); border-radius: var(--rad);
+    padding: 18px 16px; margin-bottom: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+  .card-title {
+    font-size: 12px; font-weight: 700; color: var(--sub);
+    text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 16px;
+  }
+  .card-title span { color: var(--navy); }
 
-/* server/side buttons */
-.server-btns, .side-btns { display: flex; flex-direction: column; gap: 5px; }
-.serve-btn, .side-btn {
-  padding: 10px 10px; border-radius: 10px;
-  background: var(--bg3); color: var(--fg);
-  font-size: 15px; font-weight: 700;
-  border: 2px solid transparent; width: 100%;
-}
-.serve-btn.sel, .side-btn.sel { background: var(--accent); color: #fff; border-color: var(--accent); }
+  /* Done banners */
+  .done-banner {
+    border-radius: var(--rad); padding: 12px 16px;
+    text-align: center; margin-bottom: 14px; display: none;
+  }
+  .done-banner strong { font-size: 14px; display: block; }
+  .done-banner span   { font-size: 12px; margin-top: 3px; display: block; opacity: 0.8; }
+  .done-morning { background: #E2EFDA; border: 1.5px solid var(--green); color: var(--green); }
+  .done-evening { background: #E8F4FD; border: 1.5px solid var(--navy); color: var(--navy); }
 
-/* amber pulse for unset required */
-@keyframes amberpulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
-  50%      { box-shadow: 0 0 0 6px rgba(245,158,11,.45); }
-}
-.need-tap { animation: amberpulse 1.6s ease-in-out infinite; border-color: var(--amber) !important; }
+  /* Sliders */
+  .question { margin-bottom: 20px; }
+  .question:last-of-type { margin-bottom: 0; }
+  .q-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+  .q-label  { font-size: 15px; font-weight: 600; }
+  .q-value  { font-size: 24px; font-weight: 800; min-width: 32px; text-align: right; transition: color 0.15s; }
+  .q-hints  { display: flex; justify-content: space-between; font-size: 11px; color: var(--sub); margin-bottom: 8px; }
 
-/* serve modifier bar (above FH/BH) */
-.serve-mod-bar {
-  display: flex; gap: 5px; flex-shrink: 0;
-}
-.smod-fault-row, .smod-ace-row {
-  display: flex; gap: 5px; flex: 1; flex-direction: column;
-}
-.smod-btn {
-  flex: 1; padding: 8px 4px; border-radius: 8px;
-  font-size: 12px; font-weight: 700;
-  background: var(--bg3); color: var(--fg2);
-  border: 2px solid var(--border);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.smod-btn:disabled { opacity: 0.3; }
-.smod-btn.fault-btn { color: #fca5a5; border-color: #7f1d1d; background: #2a1010; }
-.smod-btn.fault-btn.sel { background: var(--red); color: #fff; border-color: var(--red); }
-.smod-btn.ace-btn { color: #86efac; border-color: #166534; background: #0d2818; }
-.smod-btn.ace-btn.sel { background: var(--green); color: #fff; border-color: var(--green); }
+  input[type=range] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 7px; border-radius: 4px; outline: none; cursor: pointer;
+    background: linear-gradient(
+      to right,
+      var(--track-fill, var(--navy)) 0%,
+      var(--track-fill, var(--navy)) var(--pct, 0%),
+      var(--border) var(--pct, 0%),
+      var(--border) 100%
+    );
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--white); border: 3px solid var(--navy);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18); cursor: pointer;
+  }
 
-/* middle col: point so far + shots */
-.psf-row {
-  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
-}
-.psf-label {
-  font-size: 10px; font-weight: 700; color: var(--fg2);
-  text-transform: uppercase; letter-spacing: .08em;
-  white-space: nowrap; flex-shrink: 0;
-}
-.psf-strip {
-  display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
-  flex: 1; min-height: 30px;
-  background: var(--bg3); border-radius: 8px; padding: 5px 7px;
-}
-.psf-pill {
-  padding: 4px 10px; border-radius: 20px;
-  font-size: 12px; font-weight: 700; color: #fff;
-}
-.psf-pill.normal { background: var(--pill-norm); }
-.psf-pill.ace { background: var(--pill-ace); }
-.psf-pill.df { background: var(--pill-df); }
-.psf-pill.fh { background: var(--pill-fh); }
-.psf-pill.bh { background: var(--pill-bh); }
-.psf-pill.net { background: var(--pill-net); }
+  /* Hooper summary */
+  .hooper-box {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--light); border-radius: 12px;
+    padding: 14px 16px; margin-top: 16px;
+    border: 1.5px solid var(--border);
+  }
+  .hb-left      { font-size: 13px; color: var(--sub); font-weight: 600; }
+  .hb-left small{ display: block; font-size: 11px; font-weight: 400; margin-top: 2px; }
+  .hb-score     { font-size: 36px; font-weight: 900; line-height: 1; }
+  .hb-right     { text-align: right; }
+  .hb-status    { font-size: 13px; font-weight: 700; margin-top: 4px; }
 
-.shot-btns { display: flex; flex-direction: column; gap: 5px; flex: 1; min-height: 0; }
-.fh-bh-row { display: flex; gap: 6px; flex: 1; min-height: 130px; }
-.fh-btn, .bh-btn {
-  flex: 1; border-radius: 12px;
-  font-size: 32px; font-weight: 800;
-  /* height fills .fh-bh-row via align-items:stretch (flex default) */
-}
-.fh-btn { background: #14532d; color: #86efac; }
-.bh-btn { background: #1e3a6e; color: #93c5fd; }
-.fh-btn:disabled { background: var(--bg3); color: var(--fg2); }
-.bh-btn:disabled { background: var(--bg3); color: var(--fg2); }
+  /* Workload session rows */
+  .session-group { margin-bottom: 6px; }
+  .session-label {
+    font-size: 13px; font-weight: 700; color: var(--text);
+    margin-bottom: 6px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .session-au {
+    font-size: 13px; font-weight: 700; color: var(--navy);
+    background: var(--light); padding: 3px 10px; border-radius: 20px;
+  }
+  .session-inputs {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    margin-bottom: 8px;
+  }
+  .input-group label {
+    font-size: 11px; color: var(--sub); font-weight: 600;
+    display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .input-group input {
+    width: 100%; padding: 10px 12px; font-size: 18px; font-weight: 700;
+    border: 2px solid var(--border); border-radius: 10px;
+    background: var(--light); color: var(--text); text-align: center;
+    outline: none; -webkit-appearance: none;
+  }
+  .input-group input:focus { border-color: var(--navy); background: #fff; }
+  .input-group input::placeholder { color: var(--border); font-weight: 400; font-size: 16px; }
 
-.net-row { display: flex; gap: 5px; flex-shrink: 0; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); }
-.net-btn {
-  flex: 1; padding: 11px 4px; border-radius: 8px;
-  font-size: 11px; font-weight: 700;
-  background: #2e1065; color: #c4b5fd;
-  border: 2px solid #4c1d95;
-}
-.net-btn:disabled { background: var(--bg3); color: var(--fg2); border-color: transparent; }
+  .session-divider {
+    border: none; border-top: 1px dashed var(--border);
+    margin: 12px 0;
+  }
 
-/* ace direction */
-.ace-dir-btns { display: flex; flex-direction: column; gap: 8px; }
-.ace-dir-btn {
-  padding: 20px 10px; border-radius: 12px;
-  font-size: 17px; font-weight: 800;
-  background: var(--bg3); color: var(--fg);
-  border: 2px solid var(--border);
-  width: 100%;
-}
-.ace-dir-btn.sel { background: var(--green); color: #fff; border-color: var(--green); }
-.ace-dir-other {
-  padding: 14px 10px; border-radius: 12px;
-  font-size: 13px; font-weight: 600;
-  background: var(--bg3); color: var(--fg2);
-  border: 2px solid var(--border);
-  width: 100%;
-}
-.ace-dir-other.sel { background: var(--bg3); color: var(--fg); border-color: var(--accent); }
+  /* Section label within workload card */
+  .section-lbl {
+    font-size: 11px; font-weight: 700; color: var(--white);
+    text-transform: uppercase; letter-spacing: 0.07em;
+    background: var(--navy); border-radius: 6px;
+    padding: 4px 10px; margin-bottom: 12px; display: inline-block;
+  }
+  .section-lbl.green { background: var(--green); }
+  .section-lbl.amber { background: var(--amber); }
 
-/* right col */
-.finish-btn {
-  flex: 1; border-radius: 12px;
-  background: var(--green); color: #fff;
-  font-size: 18px; font-weight: 800;
-  padding: 0 12px; min-height: 100px;
-  border: none;
-}
-.finish-btn:disabled { background: var(--bg3); color: var(--fg2); }
-.undo-btn {
-  padding: 14px; border-radius: 10px;
-  background: var(--bg3); color: var(--fg2);
-  font-size: 14px; font-weight: 600; width: 100%;
-}
+  /* Total AU box */
+  .total-box {
+    background: var(--navy); border-radius: 12px;
+    padding: 14px 16px; margin-top: 16px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .total-box .lbl  { font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 600; }
+  .total-box .lbl small { display: block; font-size: 11px; margin-top: 2px; opacity: 0.6; }
+  .total-box .val  { font-size: 36px; font-weight: 900; color: #fff; }
 
-/* ─── WHO WON SCREEN ─────────────────────────────────── */
-/* IMPORTANT: bare #whowon must NOT set display — it would override .screen{display:none} */
-#whowon.active {
-  display: grid !important;   /* override .screen.active flex */
-  grid-template-columns: 1fr 1.6fr;
-  height: 100vh; overflow: hidden;
-  gap: 0; padding: 0;
-  min-height: 0;
-}
-.ww-left {
-  display: flex; flex-direction: column; gap: 8px; padding: 10px 8px;
-  border-right: 1px solid var(--border);
-}
-.ww-title { font-size: 12px; font-weight: 700; color: var(--fg2); text-transform: uppercase; letter-spacing: .08em; padding-bottom: 2px; }
-.whowon-btn {
-  flex: 1; border-radius: 12px;
-  font-size: 20px; font-weight: 800;
-  padding: 0 12px; min-height: 0;
-  background: var(--bg3); color: var(--fg); border: 2px solid var(--border);
-}
-.whowon-btn.ww-sel { background: var(--green); color: #fff; border-color: var(--green); }
-.whowon-btn.ww-dim { opacity: 0.35; }
-.ww-confirm {
-  flex: none; padding: 14px 12px; border-radius: 12px;
-  background: var(--accent); color: #fff;
-  font-size: 17px; font-weight: 800; width: 100%;
-  border: none;
-}
-.ww-confirm:disabled { background: var(--bg3); color: var(--fg2); }
-.ww-right {
-  display: flex; flex-direction: column; gap: 6px; padding: 10px 8px;
-  overflow-y: auto;
-}
-.ls-section-label { font-size: 10px; font-weight: 700; color: var(--fg2); text-transform: uppercase; letter-spacing: .08em; }
-.ls-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
-.ls-btn {
-  padding: 8px 4px; border-radius: 8px; font-size: 11px; font-weight: 600;
-  background: var(--bg3); color: var(--fg2); border: 2px solid transparent;
-  line-height: 1.2; text-align: center;
-}
-.ls-btn.sel { border-color: var(--accent); color: var(--fg); background: var(--bg2); }
-.ls-btn.winner-type { color: #16a34a; }
-.ls-btn.error-type { color: #dc2626; }
-.ls-btn.winner-type.sel { background: #14532d; border-color: var(--green); color: #86efac; }
-.ls-btn.error-type.sel { background: #3d1515; border-color: var(--red); color: #fca5a5; }
+  /* Notes */
+  textarea {
+    width: 100%; padding: 12px; font-size: 15px; line-height: 1.5;
+    border: 2px solid var(--border); border-radius: 10px;
+    background: var(--light); color: var(--text);
+    resize: none; outline: none; font-family: inherit;
+  }
+  textarea:focus { border-color: var(--navy); background: #fff; }
 
-/* 2nd last shot buttons */
-.tls-btn {
-  padding: 7px 10px; border-radius: 8px; font-size: 12px; font-weight: 600;
-  background: var(--bg3); color: var(--fg2); border: 2px solid transparent;
-}
-.tls-btn.sel { border-color: var(--purple); color: var(--fg); background: var(--bg2); }
+  /* Sticky bottom */
+  .sticky-bottom {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    padding: 10px 16px calc(var(--safe-bot) + 10px);
+    background: var(--white); box-shadow: 0 -1px 12px rgba(0,0,0,0.1);
+  }
+  .btn-row { display: flex; flex-direction: column; gap: 8px; max-width: 480px; margin: 0 auto; }
 
-/* Fault direction buttons (in shot area, like ace-dir) */
-.fdir-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.fdir-btn {
-  padding: 14px 8px; border-radius: 12px;
-  font-size: 12px; font-weight: 700;
-  background: var(--bg3); color: var(--fg2);
-  border: 2px solid var(--border);
-  width: 100%; text-align: center;
-}
-.fdir-btn.sel { background: var(--amber); color: #fff; border-color: var(--amber); }
+  .btn-wa {
+    width: 100%; padding: 14px; font-size: 16px; font-weight: 700;
+    color: #fff; border: none; border-radius: var(--rad);
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: opacity 0.2s;
+  }
+  .btn-wa:active { opacity: 0.85; }
+  .btn-morning { background: var(--green); }
+  .btn-evening { background: var(--navy); }
+  .btn-save {
+    width: 100%; padding: 10px; font-size: 13px; font-weight: 600;
+    color: var(--sub); background: var(--light); border: 1.5px solid var(--border);
+    border-radius: var(--rad); cursor: pointer;
+  }
 
-/* lsnext screen */
-#lsnext.active {
-  display: grid !important;
-  grid-template-columns: 95px 1fr;
-  height: 100vh; overflow: hidden;
-  gap: 0; padding: 0;
-}
-.lsnext-left {
-  display: flex; flex-direction: column; gap: 8px; padding: 10px 8px;
-  border-right: 1px solid var(--border);
-}
-.lsnext-right {
-  display: flex; flex-direction: column; gap: 8px; padding: 10px 10px;
-  overflow-y: auto;
-}
-.lsnext-title {
-  font-size: 10px; font-weight: 700; color: var(--fg2);
-  text-transform: uppercase; letter-spacing: .08em;
-  padding-bottom: 2px;
-}
-.lsnext-shot {
-  font-size: 15px; font-weight: 800; color: var(--fg); margin-bottom: 4px;
-}
+  /* Toast */
+  .toast {
+    position: fixed; top: calc(var(--safe-top) + 72px); left: 50%;
+    transform: translateX(-50%); background: #222; color: #fff;
+    padding: 12px 22px; border-radius: 30px; font-size: 14px; font-weight: 600;
+    opacity: 0; transition: opacity 0.25s; pointer-events: none;
+    white-space: nowrap; z-index: 999;
+  }
+  .toast.show { opacity: 1; }
 
-/* Last shot direction buttons */
-.lsdir-btn {
-  padding: 12px 8px; border-radius: 10px; font-size: 13px; font-weight: 700;
-  background: var(--bg3); color: var(--fg2); border: 2px solid var(--border);
-  flex: 1;
-}
-.lsdir-btn.sel { border-color: var(--accent); background: var(--bg2); color: var(--fg); }
-.lsdir-btn.outcome-btn.sel { border-color: var(--red); background: #3d1515; color: #fca5a5; }
+  /* History */
+  .history-item {
+    background: var(--white); border-radius: var(--rad);
+    padding: 14px 16px; margin-bottom: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .hi-date   { font-size: 12px; color: var(--sub); margin-bottom: 8px; font-weight: 600; }
+  .hi-row    { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .hi-score  { font-size: 26px; font-weight: 900; }
+  .hi-status { font-size: 13px; font-weight: 700; }
+  .hi-detail { font-size: 12px; color: var(--sub); margin-bottom: 4px; }
+  .hi-load   { font-size: 13px; font-weight: 700; color: var(--navy); }
+  .hi-notes  { font-size: 12px; color: var(--sub); margin-top: 6px; font-style: italic; }
+  .empty-state { text-align: center; color: var(--sub); padding: 50px 20px; font-size: 15px; line-height: 1.8; }
 
-/* Score analysis table */
-.score-sit-grid {
-  display: grid; grid-template-columns: 1.4fr 1fr 1fr;
-  gap: 3px 6px; font-size: 11px; margin-top: 4px;
-}
-.score-sit-grid .hdr { font-weight: 700; color: var(--fg2); padding-bottom: 2px; }
-.score-sit-grid .val { text-align: right; }
-.score-sit-grid .sit { color: var(--fg2); }
-.score-sit-grid .good { color: var(--green); font-weight: 700; }
-.score-sit-grid .bad  { color: var(--red);   font-weight: 700; }
+  /* Settings */
+  .setting-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .setting-row:last-child { border-bottom: none; }
+  .setting-lbl { font-size: 15px; font-weight: 600; }
+  .setting-sub { font-size: 12px; color: var(--sub); margin-top: 2px; }
+  .btn-sm { padding: 8px 16px; font-size: 13px; font-weight: 700; border-radius: 8px; border: none; cursor: pointer; background: var(--navy); color: #fff; }
+  .btn-danger { background: var(--red); }
 
-/* ─── POINT LOG SCREEN ───────────────────────────────── */
-#pointlog { padding: 0; }
-.delete-confirm-bar {
-  position: sticky; top: env(safe-area-inset-top, 0px);
-  z-index: 200;
-  background: #7f1d1d; color: #fff;
-  padding: 12px 16px; display: flex; align-items: center; gap: 10px;
-  font-size: 14px; font-weight: 600;
-}
-.delete-confirm-bar span { flex: 1; }
-.dc-cancel { background: rgba(255,255,255,.2); color: #fff; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; }
-.dc-confirm { background: #fff; color: var(--red); padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; }
-.log-list { flex: 1; overflow-y: auto; padding: 8px 0; }
-.log-item {
-  padding: 10px 16px; border-bottom: 1px solid var(--border);
-  display: flex; flex-direction: column; gap: 4px;
-  font-size: 13px;
-}
-.log-item.deleting { background: #3d1515; }
-.log-item-row1 { display: flex; align-items: center; gap: 8px; }
-.log-num { font-size: 11px; color: var(--fg2); min-width: 24px; }
-.log-meta { flex: 1; color: var(--fg2); font-size: 12px; }
-.log-winner { font-weight: 700; font-size: 13px; }
-.log-shots { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
-.log-del { background: var(--bg3); color: var(--fg2); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
-.log-edit { background: var(--bg3); color: var(--accent); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
-.log-lastshot { font-size: 11px; color: var(--fg2); margin-top: 1px; }
-.empty-log { text-align: center; color: var(--fg2); padding: 48px 16px; font-size: 14px; }
+  .toggle { position: relative; width: 50px; height: 28px; cursor: pointer; flex-shrink: 0; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .tog-track { position: absolute; inset: 0; background: var(--border); border-radius: 28px; transition: 0.3s; }
+  .tog-track::before { content: ""; position: absolute; width: 22px; height: 22px; border-radius: 50%; background: #fff; left: 3px; top: 3px; transition: 0.3s; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+  .toggle input:checked + .tog-track { background: var(--wa); }
+  .toggle input:checked + .tog-track::before { transform: translateX(22px); }
 
-/* ─── EDIT MODAL ─────────────────────────────────────── */
-.edit-overlay {
-  position: fixed; inset: 0; z-index: 500;
-  background: rgba(0,0,0,.75);
-  display: flex; align-items: center; justify-content: center;
-  padding: 12px;
-}
-.edit-modal {
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 16px; padding: 18px;
-  width: 100%; max-width: 500px;
-  display: flex; flex-direction: column; gap: 12px;
-  max-height: 92vh; overflow-y: auto;
-}
-.edit-modal-title { font-size: 15px; font-weight: 700; }
-.edit-field { display: flex; flex-direction: column; gap: 5px; }
-.edit-label { font-size: 10px; font-weight: 700; color: var(--fg2); text-transform: uppercase; letter-spacing: .06em; }
-.edit-row { display: flex; gap: 7px; }
-.edit-opt {
-  flex: 1; padding: 9px 8px; border-radius: 8px;
-  background: var(--bg3); color: var(--fg);
-  font-size: 13px; font-weight: 600;
-  border: 2px solid transparent;
-}
-.edit-opt.sel { background: var(--accent); color: #fff; border-color: var(--accent); }
-.edit-opt.green.sel { background: var(--green); border-color: var(--green); }
-.edit-opt.red.sel { background: var(--red); border-color: var(--red); }
-.edit-select {
-  background: var(--bg3); color: var(--fg);
-  border: 1px solid var(--border); border-radius: 8px;
-  padding: 9px 10px; font-size: 13px; width: 100%;
-  font-family: inherit;
-}
-.edit-save { background: var(--green); color: #fff; padding: 13px; border-radius: 10px; font-size: 15px; font-weight: 700; width: 100%; }
-.edit-cancel { background: var(--bg3); color: var(--fg2); padding: 10px; border-radius: 10px; font-size: 14px; font-weight: 600; width: 100%; }
+  input[type=time] { padding: 9px 12px; font-size: 16px; border: 2px solid var(--border); border-radius: 10px; background: var(--light); color: var(--text); outline: none; font-family: inherit; }
+  input[type=time]:focus { border-color: var(--navy); }
 
-/* ─── ANALYSE SCREEN ─────────────────────────────────── */
-#analyse { padding: 0; }
-.analyse-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
-.stat-card {
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px;
-}
-.stat-row { display: flex; justify-content: space-between; align-items: center; }
-.stat-label { font-size: 13px; color: var(--fg2); }
-.stat-val { font-size: 18px; font-weight: 800; color: var(--fg); }
-.stat-bar-wrap { height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
-.stat-bar { height: 100%; border-radius: 3px; background: var(--accent); transition: width .5s; }
-.hand-toggle { display: flex; gap: 4px; }
-.hand-btn { padding: 5px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg3); color: var(--fg2); font-size: 13px; font-weight: 600; cursor: pointer; transition: background .15s, color .15s; }
-.hand-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-.stat-card-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); margin-bottom: 2px; }
-.stat-sub { font-size: 11px; font-weight: 600; color: var(--fg2); text-transform: uppercase; letter-spacing: .04em; }
-.coaching-card {
-  background: linear-gradient(135deg, #1e1b4b, #312e81);
-  border: 1px solid #4338ca; border-radius: 14px; padding: 16px;
-  display: flex; flex-direction: column; gap: 6px;
-}
-.coaching-label { font-size: 11px; font-weight: 700; color: #a5b4fc; text-transform: uppercase; letter-spacing: .08em; }
-.coaching-text { font-size: 15px; font-weight: 600; color: #e0e7ff; line-height: 1.5; }
+  .info-box { background: var(--light); border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--sub); line-height: 1.7; margin-top: 10px; }
+  .info-box strong { color: var(--text); }
 
-/* ─── END MATCH SCREEN ───────────────────────────────── */
-#endmatch { justify-content: center; padding: 24px; gap: 16px; }
-#endmatch h1 { text-align: center; }
-.end-summary {
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 16px; padding: 20px; text-align: center;
-}
-.end-pts { font-size: 3rem; font-weight: 800; color: var(--accent); }
-.end-sub { color: var(--fg2); font-size: 14px; margin-top: 4px; }
-.end-btns { display: flex; flex-direction: column; gap: 10px; }
-.end-btn {
-  padding: 16px; border-radius: 14px;
-  font-size: 16px; font-weight: 700;
-}
-.end-btn.primary { background: var(--accent); color: #fff; }
-.end-btn.secondary { background: var(--bg3); color: var(--fg); }
-.end-back { text-align: center; color: var(--fg2); font-size: 14px; text-decoration: underline; cursor: pointer; background: none; border: none; color: var(--fg2); padding: 8px; }
+  .c-green { color: var(--green); }
+  .c-amber { color: var(--amber); }
+  .c-red   { color: var(--red);   }
+  .c-navy  { color: var(--navy);  }
+
+  /* Borg modal */
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:flex-end; justify-content:center; }
+  .modal-overlay.open { display:flex; }
+  .modal-sheet { background:var(--white); border-radius:20px 20px 0 0; padding:20px 16px calc(var(--safe-bot) + 20px); width:100%; max-width:480px; max-height:80vh; overflow-y:auto; }
+  .modal-handle { width:40px; height:4px; background:var(--border); border-radius:2px; margin:0 auto 16px; }
+  .modal-title { font-size:16px; font-weight:700; color:var(--text); margin-bottom:3px; }
+  .modal-sub { font-size:13px; color:var(--sub); margin-bottom:14px; line-height:1.5; }
+  .borg-row { display:flex; align-items:flex-start; gap:12px; padding:8px 10px; border-radius:8px; margin-bottom:3px; }
+  .borg-num { font-size:17px; font-weight:900; min-width:22px; text-align:center; padding-top:1px; }
+  .borg-desc { font-size:14px; font-weight:600; }
+  .borg-hint { font-size:11px; color:var(--sub); margin-top:1px; }
+  .borg-0,.borg-1,.borg-2 { background:#F0F9F4; }
+  .borg-3 { background:#E2EFDA; border:2px solid var(--green); }
+  .borg-4,.borg-5,.borg-6 { background:#FFF8E1; }
+  .borg-7,.borg-8 { background:#FFEBEE; }
+  .borg-9,.borg-10 { background:#FCE4D6; }
+  .btn-close-modal { width:100%; padding:14px; background:var(--navy); color:#fff; border:none; border-radius:var(--rad); font-size:16px; font-weight:700; cursor:pointer; margin-top:14px; }
 </style>
+</head>
+<body>
 
-<!-- ═══════════════════════════════════════════════════ -->
-<!--  SETUP SCREEN                                       -->
-<!-- ═══════════════════════════════════════════════════ -->
-<div id="setup" class="screen active">
-  <div class="setup-logo">
-    <h1>🎾 Tennis Logger</h1>
-    <p style="color:var(--fg2);font-size:13px;margin-top:4px;">Point-by-point match logging</p>
-  </div>
-  <div class="setup-card" style="margin:0 0 0 0">
-    <div class="form-row">
-      <div class="form-label">Player name</div>
-      <input id="s-player" type="text" placeholder="e.g. Oliver Prangley" autocomplete="off">
-    </div>
-    <div class="form-row" style="align-items:center">
-      <div class="form-label">Player hand</div>
-      <div class="hand-toggle" id="hand-p">
-        <button class="hand-btn active" data-val="R" onclick="setHand('p','R',this)">Right</button>
-        <button class="hand-btn" data-val="L" onclick="setHand('p','L',this)">Left</button>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-label">Opponent name</div>
-      <input id="s-opp" type="text" placeholder="e.g. Smith" autocomplete="off">
-    </div>
-    <div class="form-row" style="align-items:center">
-      <div class="form-label">Opponent hand</div>
-      <div class="hand-toggle" id="hand-o">
-        <button class="hand-btn active" data-val="R" onclick="setHand('o','R',this)">Right</button>
-        <button class="hand-btn" data-val="L" onclick="setHand('o','L',this)">Left</button>
-      </div>
-    </div>
-    <div class="form-row" style="overflow:hidden">
-      <div class="form-label">Date</div>
-      <input id="s-date" type="date" autocomplete="off" style="width:100%;max-width:100%;box-sizing:border-box">
-    </div>
-    <div class="form-row">
-      <div class="form-label">Tournament</div>
-      <input id="s-tourn" type="text" placeholder="e.g. ITF Aldershot" autocomplete="off">
-    </div>
-    <div class="form-row">
-      <div class="form-label">Environment</div>
-      <div class="btn-group">
-        <button class="opt-btn" data-group="env" data-val="Outdoor" onclick="pickOpt(this)">Outdoor</button>
-        <button class="opt-btn" data-group="env" data-val="Indoor" onclick="pickOpt(this)">Indoor</button>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-label">Surface</div>
-      <div class="grid-3x2">
-        <button class="opt-btn" data-group="surf" data-val="Hard" onclick="pickOpt(this)">Hard</button>
-        <button class="opt-btn" data-group="surf" data-val="Clay" onclick="pickOpt(this)">Clay</button>
-        <button class="opt-btn" data-group="surf" data-val="Grass" onclick="pickOpt(this)">Grass</button>
-        <button class="opt-btn" data-group="surf" data-val="Artificial Clay" onclick="pickOpt(this)">Artificial Clay</button>
-        <button class="opt-btn" data-group="surf" data-val="Astroturf" onclick="pickOpt(this)">Astroturf</button>
-        <button class="opt-btn" data-group="surf" data-val="Carpet" onclick="pickOpt(this)">Carpet</button>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-label">Sets format</div>
-      <div class="btn-group">
-        <button class="opt-btn" data-group="sets" data-val="Best of 3" onclick="pickOpt(this)">Best of 3</button>
-        <button class="opt-btn" data-group="sets" data-val="Best of 5" onclick="pickOpt(this)">Best of 5</button>
-      </div>
-    </div>
-    <button class="start-btn" id="start-btn" disabled onclick="startMatch()">Start Match →</button>
-  </div>
+<header>
+  <h1 id="headerName">Daily Readiness</h1>
+  <div class="sub" id="headerDate"></div>
+</header>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('morning',this)">🌅 Morning</button>
+  <button class="tab-btn"        onclick="showTab('evening',this)">🏃 Workload</button>
+  <button class="tab-btn"        onclick="showTab('history',this)">📈 History</button>
+  <button class="tab-btn"        onclick="showTab('settings',this)">⚙️ Settings</button>
 </div>
 
-<!-- ═══════════════════════════════════════════════════ -->
-<!--  LOG SCREEN                                         -->
-<!-- ═══════════════════════════════════════════════════ -->
-<div id="log-screen" class="screen">
-  <div class="topbar">
-    <span class="topbar-title" id="topbar-info">Match</span>
-    <button class="topbar-btn" onclick="showSet()">Set</button>
-    <button class="topbar-btn" onclick="goScreen('pointlog')">Log</button>
-    <button class="topbar-btn" onclick="goScreen('analyse')">Stats</button>
-    <button class="topbar-btn red" onclick="goScreen('endmatch')">End</button>
+<!-- ══ MORNING ══════════════════════════════════════════════════════════════ -->
+<div id="tab-morning" class="tab-content active">
+<main>
+
+  <div class="done-banner done-morning" id="doneMorning">
+    <strong>✅ Morning check sent</strong>
+    <span>Resubmit below if you need to update.</span>
   </div>
-  <div class="log-body">
-    <!-- LEFT COL -->
-    <div class="log-col">
-      <div class="col-label">Server</div>
-      <div class="server-btns">
-        <button class="serve-btn need-tap" id="srv-p" onclick="setServer('P')"></button>
-        <button class="serve-btn need-tap" id="srv-o" onclick="setServer('O')"></button>
-      </div>
-      <div class="col-label" style="margin-top:4px">Side</div>
-      <div class="side-btns">
-        <button class="side-btn need-tap" id="side-d" onclick="setSide('Deuce')">Deuce</button>
-        <button class="side-btn need-tap" id="side-a" onclick="setSide('Ad')">Ad</button>
-      </div>
-      <div class="col-label" style="margin-top:4px">Set</div>
-      <select id="set-sel" onchange="setState(this.value)" style="padding:7px 6px;border-radius:8px;background:var(--bg3);color:var(--fg);border:2px solid var(--border);font-size:13px;font-weight:600;width:100%">
-        <option value="1st set">1st set</option>
-        <option value="2nd set">2nd set</option>
-        <option value="3rd set">3rd set</option>
-        <option value="Match-tiebreaker">Match-TB</option>
-      </select>
+
+  <div class="card">
+
+    <div class="question">
+      <div class="q-header"><span class="q-label">Sleep Quality</span></div>
+      <div class="q-hints"><span>Very good</span><span>Very bad</span></div>
+      <input type="range" min="1" max="7" value="4" id="s-sleep" oninput="slide('sleep',this.value)">
     </div>
 
-    <!-- MIDDLE COL -->
-    <div class="log-col">
-      <div class="serve-mod-bar">
-        <div style="display:flex;flex-direction:column;gap:5px;flex:1">
-          <button class="smod-btn fault-btn" id="smod-1f" disabled onclick="servemod('1fault')">1st fault</button>
-          <button class="smod-btn fault-btn" id="smod-2f" disabled onclick="servemod('2fault')">2nd fault</button>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:5px;flex:1">
-          <button class="smod-btn ace-btn" id="smod-1a" disabled onclick="servemod('1ace')">1st serve ACE</button>
-          <button class="smod-btn ace-btn" id="smod-2a" disabled onclick="servemod('2ace')">2nd serve ACE</button>
-        </div>
-      </div>
-      <div class="psf-row">
-        <span class="psf-label">Point so far</span>
-        <div class="psf-strip" id="psf-strip">
-          <span style="color:var(--fg2);font-size:12px">—</span>
-        </div>
-      </div>
-      <div class="shot-btns" id="shot-area">
-        <!-- normal FH/BH shown by default; replaced by ace-dir when ACE selected -->
-        <div id="fbh-area" style="display:flex;flex-direction:column;flex:1;min-height:0;gap:10px">
-          <div class="fh-bh-row">
-            <button class="fh-btn" id="fh-btn" disabled onclick="addShot('FH')">FH</button>
-            <button class="bh-btn" id="bh-btn" disabled onclick="addShot('BH')">BH</button>
-          </div>
-          <div class="net-row" id="net-row">
-            <button class="net-btn" disabled onclick="addShot('FH volley')">FH Vol</button>
-            <button class="net-btn" disabled onclick="addShot('Smash')">Smash</button>
-            <button class="net-btn" disabled onclick="addShot('BH volley')">BH Vol</button>
-          </div>
-        </div>
-        <div id="ace-dir-area" style="display:none">
-          <div class="ace-dir-btns">
-            <button class="ace-dir-btn" id="acd-wide" onclick="setAceDir('Wide')">Wide</button>
-            <button class="ace-dir-btn" id="acd-t" onclick="setAceDir('T')">T</button>
-            <button class="ace-dir-other" id="acd-other" onclick="setAceDir('Other')">Other (net cord, unusual…)</button>
-          </div>
-        </div>
-        <div id="fault-dir-area" style="display:none;width:100%">
-          <div class="fdir-grid">
-            <button class="fdir-btn" onclick="toggleFaultDir('Wide wide',this)">Wide wide</button>
-            <button class="fdir-btn" onclick="toggleFaultDir('T wide',this)">T wide</button>
-            <button class="fdir-btn" onclick="toggleFaultDir('Wide long',this)">Wide long</button>
-            <button class="fdir-btn" onclick="toggleFaultDir('T long',this)">T long</button>
-            <button class="fdir-btn" onclick="toggleFaultDir('Wide net',this)">Wide net</button>
-            <button class="fdir-btn" onclick="toggleFaultDir('T net',this)">T net</button>
-            <button class="fdir-btn" onclick="toggleFaultDir('Body long',this)">Body long</button>
-            <button class="fdir-btn" onclick="toggleFaultDir('Body net',this)">Body net</button>
-          </div>
-        </div>
-      </div>
+    <div class="question">
+      <div class="q-header"><span class="q-label">Fatigue</span></div>
+      <div class="q-hints"><span>Not at all</span><span>Extremely fatigued</span></div>
+      <input type="range" min="1" max="7" value="4" id="s-fatigue" oninput="slide('fatigue',this.value)">
     </div>
 
-    <!-- RIGHT COL -->
-    <div class="log-col" style="gap:8px">
-      <button class="finish-btn" id="finish-btn" disabled onclick="pointFinished()">Point<br>Finished</button>
-      <button class="undo-btn" id="undo-btn" disabled onclick="undoShot()">↩ Undo</button>
+    <div class="question">
+      <div class="q-header"><span class="q-label">Stress</span></div>
+      <div class="q-hints"><span>Very relaxed</span><span>Extremely stressed</span></div>
+      <input type="range" min="1" max="7" value="4" id="s-stress" oninput="slide('stress',this.value)">
     </div>
+
+    <div class="question">
+      <div class="q-header"><span class="q-label">Muscle Soreness</span></div>
+      <div class="q-hints"><span>No soreness</span><span>Extremely sore</span></div>
+      <input type="range" min="1" max="7" value="4" id="s-soreness" oninput="slide('soreness',this.value)">
+    </div>
+
+  </div>
+
+  <div class="card">
+    <div class="card-title">Notes (optional)</div>
+    <textarea id="morningNotes" rows="2" placeholder="Anything to flag — pain, illness, poor sleep…"></textarea>
+  </div>
+
+</main>
+<div class="sticky-bottom">
+  <div class="btn-row">
+    <button class="btn-wa btn-morning" onclick="sendMorning()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Send Morning Check
+    </button>
+    <button class="btn-save" onclick="saveLocal('morning')">💾 Save locally only</button>
+    <button class="btn-save" onclick="clearMorning()" style="color:var(--red);border-color:var(--red)">🗑 Clear all fields</button>
   </div>
 </div>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!--  WHO WON SCREEN                                     -->
-<!-- ═══════════════════════════════════════════════════ -->
-<div id="whowon" class="screen">
-  <div class="ww-left">
-    <div class="ww-title">Who won?</div>
-    <button class="whowon-btn" id="ww-p" onclick="selectWinner('P')"></button>
-    <button class="whowon-btn" id="ww-o" onclick="selectWinner('O')"></button>
-    <button class="ww-confirm" id="ww-confirm" onclick="commitPoint()" disabled>Log Point →</button>
-  </div>
-  <div class="ww-right">
-    <div class="ls-section-label">Last shot — optional</div>
-    <div class="ls-section-label" style="color:#16a34a;margin-top:4px">Winners</div>
-    <div class="ls-grid" id="ls-winners"></div>
-    <div class="ls-section-label" style="color:#dc2626;margin-top:6px">Errors</div>
-    <div class="ls-grid" id="ls-errors"></div>
-  </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════ -->
-<!--  LAST SHOT NEXT SCREEN (direction / forcing shot)   -->
-<!-- ═══════════════════════════════════════════════════ -->
-<div id="lsnext" class="screen">
-  <div class="lsnext-left">
-    <button class="ww-confirm" style="flex:none;padding:12px;font-size:14px" onclick="backFromLsNext()">← Back</button>
-    <div style="flex:1"></div>
-    <button class="ww-confirm" id="lsnext-log-btn" onclick="commitPoint()">Log<br>Point →</button>
+<!-- ══ EVENING / WORKLOAD ════════════════════════════════════════════════════ -->
+<div id="tab-evening" class="tab-content">
+<main>
+
+  <div class="done-banner done-evening" id="doneEvening">
+    <strong>✅ Workload sent</strong>
+    <span>Resubmit below if you need to update.</span>
   </div>
-  <div class="lsnext-right">
-    <div class="lsnext-title" id="lsnext-title">Direction — optional</div>
-    <div class="lsnext-shot" id="lsnext-shot"></div>
 
-    <!-- Direction section (winner / unforced error) -->
-    <div id="lsnext-dir-section">
-      <div style="display:flex;gap:6px;flex-wrap:wrap" id="ls-dir-cat-row">
-        <button class="lsdir-btn" onclick="toggleShotDirCat('Line',this)">Line</button>
-        <button class="lsdir-btn" onclick="toggleShotDirCat('Cross',this)">Cross</button>
-        <button class="lsdir-btn" onclick="toggleShotDirCat('Inside in',this)">Inside in</button>
-        <button class="lsdir-btn" onclick="toggleShotDirCat('Inside out',this)">Inside out</button>
-        <button class="lsdir-btn" id="ls-dir-middle" onclick="toggleShotDirCat('Middle',this)">Middle</button>
-      </div>
-      <div id="ls-dir-out-row" style="display:none;flex-wrap:wrap;gap:6px;margin-top:6px">
-        <button class="lsdir-btn outcome-btn" onclick="toggleShotDirOut('net',this)">Net</button>
-        <button class="lsdir-btn outcome-btn" onclick="toggleShotDirOut('long',this)">Long</button>
-        <button class="lsdir-btn outcome-btn" onclick="toggleShotDirOut('wide',this)">Wide</button>
+  <div class="card" style="padding:14px 16px">
+    <div class="card-title" style="margin-bottom:10px">📅 Log date</div>
+    <input type="date" id="workloadDate" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;color:var(--text);background:var(--bg);box-sizing:border-box"/>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;gap:8px">Session Workload — <span>time (mins) × RPE (1–10)</span><button onclick="document.getElementById('borgModal').style.display='flex'" style="width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;border:none;cursor:pointer;font-size:12px;font-weight:700;flex-shrink:0">i</button></div>
+
+    <!-- MATCHES -->
+    <div class="section-lbl">Matches</div>
+
+    <div class="session-group">
+      <div class="session-label">Match — Singles 1 <span class="session-au" id="au-ms1">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-ms1" placeholder="0" min="0" max="300" oninput="calcAU('ms1')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-ms1" placeholder="0" min="0" max="10" oninput="calcAU('ms1')"></div>
       </div>
     </div>
 
-    <!-- 2nd-last section (forced error) -->
-    <div id="lsnext-2ndlast-section" style="display:none">
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="tls-btn" onclick="toggle2ndLast('FH',this)">FH</button>
-        <button class="tls-btn" onclick="toggle2ndLast('BH',this)">BH</button>
-        <button class="tls-btn" onclick="toggle2ndLast('FH volley',this)">FH Volley</button>
-        <button class="tls-btn" onclick="toggle2ndLast('BH volley',this)">BH Volley</button>
-        <button class="tls-btn" onclick="toggle2ndLast('Smash',this)">Smash</button>
+    <div class="session-group">
+      <div class="session-label">Match — Singles 2 <span class="session-au" id="au-ms2">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-ms2" placeholder="0" min="0" max="300" oninput="calcAU('ms2')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-ms2" placeholder="0" min="0" max="10" oninput="calcAU('ms2')"></div>
       </div>
+    </div>
+
+    <div class="session-group">
+      <div class="session-label">Match — Doubles <span class="session-au" id="au-md">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-md" placeholder="0" min="0" max="300" oninput="calcAU('md')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-md" placeholder="0" min="0" max="10" oninput="calcAU('md')"></div>
+      </div>
+    </div>
+
+    <hr class="session-divider">
+
+    <!-- ON-COURT -->
+    <div class="section-lbl green">On-Court</div>
+
+    <div class="session-group">
+      <div class="session-label">On-Court 1 <span class="session-au" id="au-oc1">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-oc1" placeholder="0" min="0" max="300" oninput="calcAU('oc1')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-oc1" placeholder="0" min="0" max="10" oninput="calcAU('oc1')"></div>
+      </div>
+    </div>
+
+    <div class="session-group">
+      <div class="session-label">On-Court 2 <span class="session-au" id="au-oc2">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-oc2" placeholder="0" min="0" max="300" oninput="calcAU('oc2')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-oc2" placeholder="0" min="0" max="10" oninput="calcAU('oc2')"></div>
+      </div>
+    </div>
+
+    <div class="session-group">
+      <div class="session-label">On-Court Conditioning <span class="session-au" id="au-occ">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-occ" placeholder="0" min="0" max="300" oninput="calcAU('occ')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-occ" placeholder="0" min="0" max="10" oninput="calcAU('occ')"></div>
+      </div>
+    </div>
+
+    <hr class="session-divider">
+
+    <!-- PHYSICAL -->
+    <div class="section-lbl amber">Physical</div>
+
+    <div class="session-group">
+      <div class="session-label">Agility <span class="session-au" id="au-ag">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-ag" placeholder="0" min="0" max="300" oninput="calcAU('ag')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-ag" placeholder="0" min="0" max="10" oninput="calcAU('ag')"></div>
+      </div>
+    </div>
+
+    <div class="session-group">
+      <div class="session-label">Power <span class="session-au" id="au-pw">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-pw" placeholder="0" min="0" max="300" oninput="calcAU('pw')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-pw" placeholder="0" min="0" max="10" oninput="calcAU('pw')"></div>
+      </div>
+    </div>
+
+    <div class="session-group">
+      <div class="session-label">Strength <span class="session-au" id="au-st">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-st" placeholder="0" min="0" max="300" oninput="calcAU('st')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-st" placeholder="0" min="0" max="10" oninput="calcAU('st')"></div>
+      </div>
+    </div>
+
+    <div class="session-group">
+      <div class="session-label">Body Mgmt <span class="session-au" id="au-bm">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-bm" placeholder="0" min="0" max="300" oninput="calcAU('bm')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-bm" placeholder="0" min="0" max="10" oninput="calcAU('bm')"></div>
+      </div>
+    </div>
+
+    <div class="session-group">
+      <div class="session-label">Aerobic <span class="session-au" id="au-ae">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-ae" placeholder="0" min="0" max="300" oninput="calcAU('ae')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-ae" placeholder="0" min="0" max="10" oninput="calcAU('ae')"></div>
+      </div>
+    </div>
+
+    <div class="session-group">
+      <div class="session-label">Other <span class="session-au" id="au-ot">— AU</span></div>
+      <div class="session-inputs">
+        <div class="input-group"><label>Time (mins)</label><input type="number" id="t-ot" placeholder="0" min="0" max="300" oninput="calcAU('ot')"></div>
+        <div class="input-group"><label>RPE (1–10)</label><input type="number" id="r-ot" placeholder="0" min="0" max="10" oninput="calcAU('ot')"></div>
+      </div>
+    </div>
+
+    <!-- TOTAL -->
+    <div class="total-box">
+      <div class="lbl">Total Daily Load<small>all sessions combined</small></div>
+      <div class="val" id="totalAU">0 AU</div>
     </div>
   </div>
-</div>
 
-<!-- ═══════════════════════════════════════════════════ -->
-<!--  POINT LOG SCREEN                                   -->
-<!-- ═══════════════════════════════════════════════════ -->
-<div id="pointlog" class="screen">
-  <div class="topbar">
-    <span class="topbar-title">Point Log</span>
-    <button class="topbar-btn" onclick="goScreen('log-screen')">← Back</button>
+  <div class="card">
+    <div class="card-title">Notes (optional)</div>
+    <textarea id="eveningNotes" rows="2" placeholder="How did training feel? Anything to flag…"></textarea>
   </div>
-  <div id="del-confirm" class="delete-confirm-bar" style="display:none">
-    <span id="del-confirm-text"></span>
-    <button class="dc-cancel" onclick="cancelDelete()">Cancel</button>
-    <button class="dc-confirm" onclick="confirmDelete()">Yes, delete</button>
-  </div>
-  <div class="log-list" id="log-list"></div>
-</div>
 
-<!-- ═══════════════════════════════════════════════════ -->
-<!--  EDIT POINT MODAL                                   -->
-<!-- ═══════════════════════════════════════════════════ -->
-<div id="edit-overlay" class="edit-overlay" style="display:none" onclick="editOverlayClick(event)">
-  <div class="edit-modal">
-    <div class="edit-modal-title" id="edit-title">Edit Point</div>
-
-    <div class="edit-field">
-      <div class="edit-label">Server</div>
-      <div class="edit-row" id="edit-server-row">
-        <button class="edit-opt" data-efield="server" data-val="P" onclick="editPick('server','P',this)"></button>
-        <button class="edit-opt" data-efield="server" data-val="O" onclick="editPick('server','O',this)"></button>
-      </div>
-    </div>
-
-    <div class="edit-field">
-      <div class="edit-label">Side</div>
-      <div class="edit-row">
-        <button class="edit-opt" data-efield="side" data-val="Deuce" onclick="editPick('side','Deuce',this)">Deuce</button>
-        <button class="edit-opt" data-efield="side" data-val="Ad" onclick="editPick('side','Ad',this)">Ad</button>
-      </div>
-    </div>
-
-    <div class="edit-field">
-      <div class="edit-label">Serve outcome</div>
-      <select class="edit-select" id="edit-serve-outcome" onchange="editServeOutcomeChange()">
-        <option value="1st serve">1st serve</option>
-        <option value="2nd serve">2nd serve</option>
-        <option value="1st serve ACE">1st serve ACE</option>
-        <option value="2nd serve ACE">2nd serve ACE</option>
-        <option value="Double fault">Double fault</option>
-      </select>
-    </div>
-
-    <!-- ACE direction — shown when ACE selected -->
-    <div class="edit-field" id="edit-ace-section" style="display:none">
-      <div class="edit-label">ACE direction</div>
-      <div class="edit-row">
-        <button class="edit-opt" data-efield="aceDir" data-val="Wide" onclick="editPick('aceDir','Wide',this)">Wide</button>
-        <button class="edit-opt" data-efield="aceDir" data-val="T" onclick="editPick('aceDir','T',this)">T</button>
-        <button class="edit-opt" data-efield="aceDir" data-val="Other" onclick="editPick('aceDir','Other',this)">Other</button>
-      </div>
-    </div>
-
-    <!-- 1st serve fault direction — shown when 1st serve fault -->
-    <div class="edit-field" id="edit-fault1-section" style="display:none">
-      <div class="edit-label">1st serve fault direction</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px" id="edit-fault1-row">
-        <button class="edit-opt" data-efield="fault1" data-val="Wide wide" onclick="editPick('fault1','Wide wide',this)">Wide wide</button>
-        <button class="edit-opt" data-efield="fault1" data-val="T wide" onclick="editPick('fault1','T wide',this)">T wide</button>
-        <button class="edit-opt" data-efield="fault1" data-val="Wide long" onclick="editPick('fault1','Wide long',this)">Wide long</button>
-        <button class="edit-opt" data-efield="fault1" data-val="T long" onclick="editPick('fault1','T long',this)">T long</button>
-        <button class="edit-opt" data-efield="fault1" data-val="Wide net" onclick="editPick('fault1','Wide net',this)">Wide net</button>
-        <button class="edit-opt" data-efield="fault1" data-val="T net" onclick="editPick('fault1','T net',this)">T net</button>
-        <button class="edit-opt" data-efield="fault1" data-val="Body long" onclick="editPick('fault1','Body long',this)">Body long</button>
-        <button class="edit-opt" data-efield="fault1" data-val="Body net" onclick="editPick('fault1','Body net',this)">Body net</button>
-      </div>
-    </div>
-
-    <!-- Double fault direction — shown when DF selected -->
-    <div class="edit-field" id="edit-fault2-section" style="display:none">
-      <div class="edit-label">Double fault direction</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-        <button class="edit-opt" data-efield="fault2" data-val="Wide wide" onclick="editPick('fault2','Wide wide',this)">Wide wide</button>
-        <button class="edit-opt" data-efield="fault2" data-val="T wide" onclick="editPick('fault2','T wide',this)">T wide</button>
-        <button class="edit-opt" data-efield="fault2" data-val="Wide long" onclick="editPick('fault2','Wide long',this)">Wide long</button>
-        <button class="edit-opt" data-efield="fault2" data-val="T long" onclick="editPick('fault2','T long',this)">T long</button>
-        <button class="edit-opt" data-efield="fault2" data-val="Wide net" onclick="editPick('fault2','Wide net',this)">Wide net</button>
-        <button class="edit-opt" data-efield="fault2" data-val="T net" onclick="editPick('fault2','T net',this)">T net</button>
-        <button class="edit-opt" data-efield="fault2" data-val="Body long" onclick="editPick('fault2','Body long',this)">Body long</button>
-        <button class="edit-opt" data-efield="fault2" data-val="Body net" onclick="editPick('fault2','Body net',this)">Body net</button>
-      </div>
-    </div>
-
-    <!-- Shot sequence — hidden for ACE / DF -->
-    <div id="edit-rally-section">
-      <div class="edit-field">
-        <div class="edit-label">Return</div>
-        <div class="edit-row">
-          <select class="edit-select" id="edit-shot-0">
-            <option value="">—</option>
-            <option value="FH">FH</option>
-            <option value="BH">BH</option>
-            <option value="FH volley">FH volley</option>
-            <option value="BH volley">BH volley</option>
-            <option value="Smash">Smash</option>
-          </select>
-        </div>
-      </div>
-      <div class="edit-field">
-        <div class="edit-label">Serve+1</div>
-        <div class="edit-row">
-          <select class="edit-select" id="edit-shot-1">
-            <option value="">—</option>
-            <option value="FH">FH</option>
-            <option value="BH">BH</option>
-            <option value="FH volley">FH volley</option>
-            <option value="BH volley">BH volley</option>
-            <option value="Smash">Smash</option>
-          </select>
-        </div>
-      </div>
-      <div class="edit-field">
-        <div class="edit-label">Return+1</div>
-        <div class="edit-row">
-          <select class="edit-select" id="edit-shot-2">
-            <option value="">—</option>
-            <option value="FH">FH</option>
-            <option value="BH">BH</option>
-            <option value="FH volley">FH volley</option>
-            <option value="BH volley">BH volley</option>
-            <option value="Smash">Smash</option>
-          </select>
-        </div>
-      </div>
-      <div class="edit-field">
-        <div class="edit-label">Serve+2</div>
-        <div class="edit-row">
-          <select class="edit-select" id="edit-shot-3">
-            <option value="">—</option>
-            <option value="FH">FH</option>
-            <option value="BH">BH</option>
-            <option value="FH volley">FH volley</option>
-            <option value="BH volley">BH volley</option>
-            <option value="Smash">Smash</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <div class="edit-field">
-      <div class="edit-label">Winner</div>
-      <div class="edit-row" id="edit-winner-row">
-        <button class="edit-opt green" data-efield="winner" data-val="P" onclick="editPick('winner','P',this)"></button>
-        <button class="edit-opt green" data-efield="winner" data-val="O" onclick="editPick('winner','O',this)"></button>
-      </div>
-    </div>
-
-    <div class="edit-field">
-      <div class="edit-label">Last shot (optional)</div>
-      <select class="edit-select" id="edit-last-shot">
-        <option value="">— none —</option>
-        <optgroup label="Winners">
-        </optgroup>
-        <optgroup label="Errors">
-        </optgroup>
-      </select>
-    </div>
-
-    <!-- Forcing shot — shown when last shot is a forced error -->
-    <div class="edit-field" id="edit-forcing-section" style="display:none">
-      <div class="edit-label">Shot that forced the error</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="edit-opt" data-efield="forcing" data-val="FH" onclick="editPickForcing('FH',this)">FH</button>
-        <button class="edit-opt" data-efield="forcing" data-val="BH" onclick="editPickForcing('BH',this)">BH</button>
-        <button class="edit-opt" data-efield="forcing" data-val="FH volley" onclick="editPickForcing('FH volley',this)">FH Volley</button>
-        <button class="edit-opt" data-efield="forcing" data-val="BH volley" onclick="editPickForcing('BH volley',this)">BH Volley</button>
-        <button class="edit-opt" data-efield="forcing" data-val="Smash" onclick="editPickForcing('Smash',this)">Smash</button>
-      </div>
-    </div>
-
-    <!-- Where / direction — same logic as live logging -->
-    <!-- For winners: pick category only (stored as "Cross winner" etc) -->
-    <!-- For errors: pick category then net/long/wide (stored as "Cross long" etc) -->
-    <div class="edit-field" id="edit-where-section" style="display:none">
-      <div class="edit-label">Direction (Where)</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
-        <button class="edit-opt" data-efield="errCat" data-val="Line" onclick="editPickDir('Line',this)">Line</button>
-        <button class="edit-opt" data-efield="errCat" data-val="Cross" onclick="editPickDir('Cross',this)">Cross</button>
-        <button class="edit-opt" data-efield="errCat" data-val="Inside in" onclick="editPickDir('Inside in',this)">Inside in</button>
-        <button class="edit-opt" data-efield="errCat" data-val="Inside out" onclick="editPickDir('Inside out',this)">Inside out</button>
-        <button class="edit-opt" data-efield="errCat" data-val="Middle" onclick="editPickDir('Middle',this)">Middle</button>
-      </div>
-      <!-- Error outcome row — only for errors -->
-      <div style="display:flex;gap:6px" id="edit-errout-row" style="display:none">
-        <button class="edit-opt" data-efield="errOut" data-val="net" onclick="editPickErrOut('net',this)">Net</button>
-        <button class="edit-opt" data-efield="errOut" data-val="long" onclick="editPickErrOut('long',this)">Long</button>
-        <button class="edit-opt" data-efield="errOut" data-val="wide" onclick="editPickErrOut('wide',this)">Wide</button>
-      </div>
-    </div>
-
-    <button class="edit-save" onclick="saveEdit()">Save Changes</button>
-    <button class="edit-cancel" onclick="closeEdit()">Cancel</button>
+</main>
+<div class="sticky-bottom">
+  <div class="btn-row">
+    <button class="btn-wa btn-morning" onclick="sendEvening()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Send Workload
+    </button>
+    <button class="btn-save" onclick="saveLocal('evening')">💾 Save locally only</button>
+    <button class="btn-save" onclick="clearEvening(true)" style="color:var(--red);border-color:var(--red)">🗑 Clear all fields</button>
   </div>
 </div>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!--  ANALYSE SCREEN                                     -->
-<!-- ═══════════════════════════════════════════════════ -->
-<div id="analyse" class="screen">
-  <div class="topbar">
-    <span class="topbar-title">Live Stats</span>
-    <button class="topbar-btn" onclick="downloadStats()">⬇ Stats</button>
-    <button class="topbar-btn" onclick="goScreen('log-screen')">← Back</button>
-  </div>
-  <div class="analyse-body" id="analyse-body"></div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════ -->
-<!--  END MATCH SCREEN                                   -->
-<!-- ═══════════════════════════════════════════════════ -->
-<div id="endmatch" class="screen">
-  <h1>End Match</h1>
-  <div class="end-summary">
-    <div class="end-pts" id="end-pts">—</div>
-    <div class="end-sub" id="end-sub">points logged</div>
-    <div id="end-win" style="margin-top:8px;font-size:1.1rem;font-weight:700"></div>
-  </div>
-  <div class="end-btns">
-    <button class="end-btn primary" onclick="goScreen('analyse')">View Full Stats</button>
-    <button class="end-btn secondary" onclick="downloadCSV()">⬇ Raw Data (xlsx)</button>
-    <button class="end-btn secondary" onclick="downloadStats()">⬇ Match Stats (xlsx)</button>
-  </div>
-  <button class="end-back" onclick="goScreen('log-screen')">Not finished — back to logging</button>
+<!-- ══ HISTORY ═══════════════════════════════════════════════════════════════ -->
+<div id="tab-history" class="tab-content">
+<main><div id="historyList"></div></main>
 </div>
+
+<!-- ══ SETTINGS ══════════════════════════════════════════════════════════════ -->
+<div id="tab-settings" class="tab-content">
+<main>
+
+  <div class="card">
+    <div class="card-title">Athlete</div>
+    <div class="setting-row">
+      <div><div class="setting-lbl">Name</div><div class="setting-sub" id="nameDisplay">Not set</div></div>
+      <button class="btn-sm" onclick="setName()">Edit</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">WhatsApp — coach number</div>
+    <div class="setting-row">
+      <div><div class="setting-lbl">Coach number</div><div class="setting-sub" id="waDisplay">Not set</div></div>
+      <button class="btn-sm" onclick="setWA()">Edit</button>
+    </div>
+    <div class="info-box">International format, no + or spaces — e.g. <strong>447911123456</strong></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Reminders</div>
+    <div class="info-box" style="margin-top:0">
+      <strong>Set two daily alarms on your phone:</strong><br><br>
+      ⏰ <strong>Morning alarm</strong> — to log your readiness scores<br><br>
+      ⏰ <strong>Evening alarm</strong> — to log your training workload<br><br>
+      Label each one so you know which is which.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Data</div>
+    <div class="setting-row">
+      <div><div class="setting-lbl">Clear all history</div><div class="setting-sub">Removes entries from this device only</div></div>
+      <button class="btn-sm btn-danger" onclick="clearData()">Clear</button>
+    </div>
+  </div>
+
+  <div style="text-align:center;color:var(--sub);font-size:12px;padding:20px 0 40px;line-height:1.9">
+    Daily Readiness · Hooper Index<br>
+    Hooper et al. (1995) Med Sci Sports Exerc
+  </div>
+
+</main>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════════════════
-let match = {
-  playerName: '',
-  opp: '', tourn: '', env: '', surface: '', sets: '',
-  date: '', playerHand: 'R', oppHand: 'R',
-  points: []
-};
+const ls  = k     => { try { return localStorage.getItem(k); }  catch(e){ return null; } };
+const lss = (k,v) => { try { localStorage.setItem(k,v); }       catch(e){} };
+const lsd = k     => { try { localStorage.removeItem(k); }      catch(e){} };
 
-// Current point state
-let cur = {
-  server: null,    // 'P' or 'O'
-  side: null,      // 'Deuce' or 'Ad'
-  set: '1st set',
-  outcome: '1st serve',
-  aceDir: null,
-  shots: [],
-  twoLastShot: '', // 2nd last shot (shot before last shot)
-  lastShot: '',
-  faultDir1: '',        // 1st serve fault direction e.g. 'Wide long'
-  faultDir2: '',        // double fault direction (2nd serve fault)
-  _faultStage: 1,       // 1 = logging 1st fault, 2 = logging DF
-  lastShotDir: '',      // last shot direction e.g. 'Cross winner', 'Line net'
-  _lsDirCat: '',        // internal: Line/Cross/Inside in/Inside out/Middle
-  _lsDirOut: '',        // internal: net/long/wide (errors only)
-};
+// Local calendar date as YYYY-MM-DD (toISOString() is UTC, which shifts the day around midnight in BST)
+function localISO(d = new Date()) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-const LS_WINNERS = [
-  'FH winner','BH winner',
-  'Return FH winner','Return BH winner',
-  'Volley FH winner','Volley BH winner',
-  'Smash winner',
-  'Drop shot winner FH','Drop shot winner BH',
-  'Dead net cord winner',
-  'Passing FH winner','Passing BH winner',
-  'Lob FH winner','Lob BH winner',
-  'Drive volley FH winner','Drive volley BH winner'
-];
-const LS_ERRORS = [
-  'FH unforced error','BH unforced error',
-  'FH forced error','BH forced error',
-  'Return FH unforced error','Return BH unforced error',
-  'Return FH forced error','Return BH forced error',
-  'Volley FH error','Volley BH error',
-  'Smash error',
-  'Drop shot error FH','Drop shot error BH',
-  'Passing FH unforced error','Passing BH unforced error',
-  'Passing FH forced error','Passing BH forced error',
-  'Lob FH error','Lob BH error',
-  'Drive volley FH error','Drive volley BH error'
+// Hooper scores
+const sc = { sleep:4, fatigue:4, stress:4, soreness:4 };
+
+// Session keys and labels
+const SESSIONS = [
+  { key:'ms1', label:'Match Singles 1' },
+  { key:'ms2', label:'Match Singles 2' },
+  { key:'md',  label:'Match Doubles'   },
+  { key:'oc1', label:'On-Court 1'      },
+  { key:'oc2', label:'On-Court 2'      },
+  { key:'occ', label:'On-Court Conditioning' },
+  { key:'ag',  label:'Agility'         },
+  { key:'pw',  label:'Power'           },
+  { key:'st',  label:'Strength'        },
+  { key:'bm',  label:'Body Mgmt'       },
+  { key:'ae',  label:'Aerobic'         },
+  { key:'ot',  label:'Other'           },
 ];
 
-function buildLastShotGrids() {
-  function makeGrid(containerId, shots, cls) {
-    const el = document.getElementById(containerId);
-    el.innerHTML = '';
-    shots.forEach(s => {
-      const b = document.createElement('button');
-      b.className = `ls-btn ${cls}`;
-      b.textContent = s
-        .replace(' winner','').replace(' unforced error',' unforced').replace(' forced error',' forced')
-        .replace(' error','');
-      b.title = s;
-      b.onclick = () => toggleLastShot(s, b);
-      el.appendChild(b);
-    });
-  }
-  makeGrid('ls-winners', LS_WINNERS, 'winner-type');
-  makeGrid('ls-errors',  LS_ERRORS,  'error-type');
-}
-
-function toggle2ndLast(val, btn) {
-  cur.twoLastShot = cur.twoLastShot === val ? '' : val;
-  document.querySelectorAll('.tls-btn').forEach(b => b.classList.remove('sel'));
-  if (cur.twoLastShot) btn.classList.add('sel');
-}
-
-function toggleFaultDir(val, btn) {
-  if (cur._faultStage === 2) {
-    cur.faultDir2 = val;
-  } else {
-    cur.faultDir1 = val;
-  }
-  // Collapse back to normal shot area
-  document.getElementById('fault-dir-area').style.display = 'none';
-  document.getElementById('fbh-area').style.display = '';
-}
-
-function toggleLastShot(val, btn) {
-  cur.lastShot = val;
-  // Return forced errors: serve was the forcing shot — no direction or 2nd-last needed
-  const isReturnForced = val.startsWith('Return') && val.includes(' forced error');
-  if (isReturnForced) {
-    document.querySelectorAll('.ls-btn').forEach(b => b.classList.remove('sel'));
-    btn.classList.add('sel');
-    return;
-  }
-  goScreen('lsnext');
-}
-
-function backFromLsNext() {
-  cur.lastShot = '';
-  cur.lastShotDir = ''; cur._lsDirCat = ''; cur._lsDirOut = '';
-  cur.twoLastShot = '';
-  // Go back to whowon, restore who-won selection without resetting it
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('whowon').classList.add('active');
-  document.querySelectorAll('.ls-btn').forEach(b => b.classList.remove('sel'));
-}
-
-function toggleShotDirCat(val, btn) {
-  cur._lsDirCat = cur._lsDirCat === val ? '' : val;
-  document.querySelectorAll('#ls-dir-cat-row .lsdir-btn').forEach(b => b.classList.remove('sel'));
-  if (cur._lsDirCat) btn.classList.add('sel');
-
-  const isWinner = cur.lastShot.includes('winner');
-  if (isWinner) {
-    cur.lastShotDir = cur._lsDirCat ? `${cur._lsDirCat} winner` : '';
-    document.getElementById('ls-dir-out-row').style.display = 'none';
-  } else {
-    // Show outcome row
-    document.getElementById('ls-dir-out-row').style.display = cur._lsDirCat ? 'flex' : 'none';
-    // Reset outcome when category changes
-    cur._lsDirOut = '';
-    document.querySelectorAll('.outcome-btn').forEach(b => b.classList.remove('sel'));
-    cur.lastShotDir = ''; // incomplete until outcome chosen
-  }
-}
-
-function toggleShotDirOut(val, btn) {
-  cur._lsDirOut = cur._lsDirOut === val ? '' : val;
-  document.querySelectorAll('.outcome-btn').forEach(b => b.classList.remove('sel'));
-  if (cur._lsDirOut) btn.classList.add('sel');
-  cur.lastShotDir = (cur._lsDirCat && cur._lsDirOut) ? `${cur._lsDirCat} ${cur._lsDirOut}` : '';
-}
-
-let pendingDeleteIdx = null;
-
-// ═══════════════════════════════════════════════════════
-//  SCREEN NAV
-// ═══════════════════════════════════════════════════════
-function goScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  if (id === 'pointlog') renderLog();
-  if (id === 'analyse') renderAnalyse();
-  if (id === 'endmatch') renderEndMatch();
-  if (id === 'whowon') {
-    pendingWinner = null;
-    ['ww-p','ww-o'].forEach(bid => {
-      const b = document.getElementById(bid);
-      b.classList.remove('ww-sel','ww-dim');
-    });
-    document.getElementById('ww-confirm').disabled = true;
-    document.querySelectorAll('.ls-btn').forEach(b => b.classList.remove('sel'));
-    cur.lastShot = '';
-    cur.lastShotDir = ''; cur._lsDirCat = ''; cur._lsDirOut = '';
-    cur.twoLastShot = '';
-  }
-  if (id === 'lsnext') {
-    const isForced = cur.lastShot.includes(' forced error') && !cur.lastShot.startsWith('Return');
-    const isWinner = cur.lastShot.includes('winner');
-    document.getElementById('lsnext-shot').textContent = cur.lastShot;
-    document.getElementById('lsnext-title').textContent =
-      isForced ? 'Forcing shot — optional' : 'Direction — optional';
-    document.getElementById('lsnext-dir-section').style.display = isForced ? 'none' : '';
-    document.getElementById('lsnext-2ndlast-section').style.display = isForced ? '' : 'none';
-    document.getElementById('ls-dir-middle').style.display = isWinner ? 'none' : '';
-    document.getElementById('ls-dir-out-row').style.display = 'none';
-    document.querySelectorAll('.lsdir-btn').forEach(b => b.classList.remove('sel'));
-    document.querySelectorAll('.tls-btn').forEach(b => b.classList.remove('sel'));
-    cur.lastShotDir = ''; cur._lsDirCat = ''; cur._lsDirOut = '';
-    cur.twoLastShot = '';
-  }
-}
-
-// ═══════════════════════════════════════════════════════
-//  SETUP
-// ═══════════════════════════════════════════════════════
-let setupVals = { env: null, surf: null, sets: null };
-
-function pickOpt(btn) {
-  const group = btn.dataset.group;
-  document.querySelectorAll(`[data-group="${group}"]`).forEach(b => b.classList.remove('sel'));
-  btn.classList.add('sel');
-  if (group === 'env') setupVals.env = btn.dataset.val;
-  if (group === 'surf') setupVals.surf = btn.dataset.val;
-  if (group === 'sets') setupVals.sets = btn.dataset.val;
-  checkStartEnabled();
-}
-
-let setupHands = { p: 'R', o: 'R' };
-function setHand(who, val, btn) {
-  setupHands[who] = val;
-  const grp = document.getElementById('hand-' + who);
-  grp.querySelectorAll('.hand-btn').forEach(b => b.classList.toggle('active', b === btn));
-}
-
-function checkStartEnabled() {
-  const p = document.getElementById('s-player').value.trim();
-  const o = document.getElementById('s-opp').value.trim();
-  const ok = p && o && setupVals.env && setupVals.surf && setupVals.sets;
-  document.getElementById('start-btn').disabled = !ok;
-}
-
-['s-player','s-opp','s-tourn'].forEach(id => {
-  document.getElementById(id).addEventListener('input', checkStartEnabled);
+// ── Boot ──────────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  document.getElementById('headerDate').textContent =
+    new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' });
+  const name = ls('athleteName');
+  if (name) document.getElementById('headerName').textContent = name;
+  loadSettings();
+  checkDone();
+  // Set workload date picker to today
+  const _wd = document.getElementById('workloadDate');
+  if (_wd) { _wd.value = localISO(); _wd.addEventListener('change', checkDone); }
+  initSliders();
 });
 
-function startMatch() {
-  match.playerName = document.getElementById('s-player').value.trim();
-  match.opp   = document.getElementById('s-opp').value.trim();
-  match.date  = document.getElementById('s-date').value;
-  match.tourn = document.getElementById('s-tourn').value.trim();
-  match.env   = setupVals.env;
-  match.surface = setupVals.surf;
-  match.sets  = setupVals.sets;
-  match.playerHand = setupHands.p;
-  match.oppHand    = setupHands.o;
-  match.points = [];
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 
-  // Set server buttons labels
-  document.getElementById('srv-p').textContent = match.playerName;
-  document.getElementById('srv-o').textContent = match.opp;
-  document.getElementById('ww-p').textContent  = match.playerName;
-  document.getElementById('ww-o').textContent  = match.opp;
-  document.getElementById('topbar-info').textContent =
-    `${match.playerName} vs ${match.opp}`;
-
-  buildLastShotGrids();
-  resetPoint();
-  goScreen('log-screen');
-  loadSavedMatch();
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+function showTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'history')  renderHistory();
+  if (name === 'settings') refreshSettings();
 }
 
-function loadSavedMatch() {
-  try {
-    const saved = localStorage.getItem('tl_match');
-    if (saved) {
-      const d = JSON.parse(saved);
-      // only load if same player
-      if (d.playerName === match.playerName) {
-        if (confirm(`Resume ${d.points.length} saved points?`)) {
-          match.points = d.points;
-        }
-      }
-    }
-  } catch(e){}
+// ── Sliders ───────────────────────────────────────────────────────────────────
+function initSliders() { Object.keys(sc).forEach(k => slide(k, sc[k], true)); }
+
+function slide(key, val, init) {
+  val = parseInt(val); sc[key] = val;
+  const el   = document.getElementById('s-'+key);
+  const disp = document.getElementById('v-'+key);
+  const pct  = ((val-1)/6*100).toFixed(1)+'%';
+  el.style.setProperty('--pct', pct);
+  const fill = val<=2?'var(--green)':val<=4?'var(--navy)':val<=5?'var(--amber)':'var(--red)';
+  el.style.setProperty('--track-fill', fill);
+  if (disp) { disp.textContent = val; disp.style.color = fill; }
+  updateTotal();
 }
 
-function saveMatch() {
-  try { localStorage.setItem('tl_match', JSON.stringify(match)); } catch(e){}
+function updateTotal() {
+  const t  = sc.sleep + sc.fatigue + sc.stress + sc.soreness;
+  const el = document.getElementById('hTotal');
+  const st = document.getElementById('hStatus');
+  if (!el || !st) return;
+  el.textContent = t;
+  if      (t<=13) { el.className='hb-score c-green'; st.textContent='🟢 Ready';     st.style.color='var(--green)'; }
+  else if (t<=19) { el.className='hb-score c-navy';  st.textContent='⚪ OK';         st.style.color='var(--navy)';  }
+  else if (t<=23) { el.className='hb-score c-amber'; st.textContent='🟡 Monitor';   st.style.color='var(--amber)'; }
+  else            { el.className='hb-score c-red';   st.textContent='🔴 High load'; st.style.color='var(--red)';   }
 }
 
-// ═══════════════════════════════════════════════════════
-//  LOGGING
-// ═══════════════════════════════════════════════════════
-function resetPoint() {
-  cur = {
-    server: null, side: null,
-    set: document.getElementById('set-sel').value,
-    outcome: '1st serve',
-    aceDir: null, shots: [], twoLastShot: '', lastShot: '',
-    faultDir1: '', faultDir2: '', _faultStage: 1,
-    lastShotDir: '', _lsDirCat: '', _lsDirOut: ''
-  };
-  document.querySelectorAll('.ls-btn').forEach(b => b.classList.remove('sel'));
-  document.querySelectorAll('.fdir-btn').forEach(b => b.classList.remove('sel'));
-  document.getElementById('fault-dir-area').style.display = 'none';
-  document.getElementById('fbh-area').style.display = '';
-
-  // server buttons: clear selection, re-enable pulse
-  ['srv-p','srv-o'].forEach(id => {
-    const b = document.getElementById(id);
-    b.classList.remove('sel');
-    b.classList.add('need-tap');
-  });
-  ['side-d','side-a'].forEach(id => {
-    const b = document.getElementById(id);
-    b.classList.remove('sel');
-    b.classList.add('need-tap');
-  });
-
-  // Reset serve mod bar: clear sel, disable all, re-enable only after server+side set
-  ['smod-1f','smod-2f','smod-1a','smod-2a'].forEach(id => {
-    const b = document.getElementById(id);
-    b.classList.remove('sel');
-    b.disabled = true;
-  });
-
-  // Lock shots + finish until server+side set
-  setShotLock(true);
-
-  updatePSF();
-  showAceDir(false);
-  document.getElementById('finish-btn').disabled = true;
-  document.getElementById('undo-btn').disabled = true;
+// ── AU calculations ───────────────────────────────────────────────────────────
+function calcAU(key) {
+  const t   = parseFloat(document.getElementById('t-'+key).value) || 0;
+  const r   = parseFloat(document.getElementById('r-'+key).value) || 0;
+  const au  = Math.round(t * r);
+  document.getElementById('au-'+key).textContent = au > 0 ? au+' AU' : '— AU';
+  updateTotalAU();
 }
 
-function setServer(who) {
-  cur.server = who;
-  document.getElementById('srv-p').classList.toggle('sel', who==='P');
-  document.getElementById('srv-o').classList.toggle('sel', who==='O');
-  document.getElementById('srv-p').classList.remove('need-tap');
-  document.getElementById('srv-o').classList.remove('need-tap');
-  checkPointReady();
+function getAU(key) {
+  const t = parseFloat(document.getElementById('t-'+key).value) || 0;
+  const r = parseFloat(document.getElementById('r-'+key).value) || 0;
+  return Math.round(t * r);
 }
 
-function setSide(side) {
-  cur.side = side;
-  document.getElementById('side-d').classList.toggle('sel', side==='Deuce');
-  document.getElementById('side-a').classList.toggle('sel', side==='Ad');
-  document.getElementById('side-d').classList.remove('need-tap');
-  document.getElementById('side-a').classList.remove('need-tap');
-  checkPointReady();
+function updateTotalAU() {
+  const total = SESSIONS.reduce((sum, s) => sum + getAU(s.key), 0);
+  document.getElementById('totalAU').textContent = total.toLocaleString() + ' AU';
 }
 
-function setState(val) { cur.set = val; }
-function showSet() {
-  const sel = document.getElementById('set-sel');
-  sel.focus();
+// ── Already done today? ───────────────────────────────────────────────────────
+function todayKey(type) { return type+'_'+localISO(); }
+
+function getWorkloadDate() {
+  const el = document.getElementById('workloadDate');
+  return el && el.value ? el.value : localISO();
 }
 
-function checkPointReady() {
-  if (cur.server && cur.side) {
-    setShotLock(false);
-    // unlock first-serve mod buttons (fault + ace for 1st serve)
-    document.getElementById('smod-1f').disabled = false;
-    document.getElementById('smod-1a').disabled = false;
-    updateFinishBtn();
-  }
+function getWorkloadDateFormatted() {
+  const d = getWorkloadDate();
+  const dt = new Date(d + 'T12:00:00'); // noon to avoid DST issues
+  return dt.toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short'});
 }
 
-function setShotLock(locked) {
-  document.getElementById('fh-btn').disabled = locked;
-  document.getElementById('bh-btn').disabled = locked;
-  document.querySelectorAll('.net-btn').forEach(b => b.disabled = locked);
+function checkDone() {
+  if (ls(todayKey('morning'))) document.getElementById('doneMorning').style.display = 'block';
+  document.getElementById('doneEvening').style.display = ls('evening_'+getWorkloadDate()) ? 'block' : 'none';
 }
 
-function showFaultDir(show) {
-  if (show) {
-    // Fault active: hide FH/BH and ace-dir, show fault-dir
-    document.getElementById('fbh-area').style.display = 'none';
-    document.getElementById('ace-dir-area').style.display = 'none';
-    document.getElementById('fault-dir-area').style.display = '';
-  } else {
-    // Fault cleared: only hide fault-dir; let showAceDir manage the rest
-    document.getElementById('fault-dir-area').style.display = 'none';
-    document.querySelectorAll('.fdir-btn').forEach(b => b.classList.remove('sel'));
-    cur.faultDir1 = ''; cur.faultDir2 = '';
-  }
+// ── WhatsApp helpers ──────────────────────────────────────────────────────────
+function openWA(msg) {
+  const num = ls('waNumber');
+  const url = (num ? `https://wa.me/${num}?text=` : `https://wa.me/?text=`) + encodeURIComponent(msg);
+  window.open(url, '_blank');
+  toast('Opening WhatsApp…');
 }
 
-// smod values: '1fault','2fault','1ace','2ace'
-function servemod(action) {
-  // clear all smod sel states first
-  ['smod-1f','smod-2f','smod-1a','smod-2a'].forEach(id =>
-    document.getElementById(id).classList.remove('sel'));
+// ── Morning send ──────────────────────────────────────────────────────────────
+function sendMorning() {
+  const t      = sc.sleep + sc.fatigue + sc.stress + sc.soreness;
+  const status = t<=13?'🟢 Ready':t<=19?'⚪ OK':t<=23?'🟡 Monitor':'🔴 High load';
+  const pct   = Math.round(((28 - t) / 24) * 100);
+  const name   = ls('athleteName')||'Athlete';
+  const notes  = document.getElementById('morningNotes').value.trim();
+  const date   = new Date().toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
 
-  if (action === '1fault') {
-    // 1st serve fault → now on 2nd serve
-    document.getElementById('smod-1f').classList.add('sel');
-    // enable 2nd serve buttons, disable 1st serve options
-    document.getElementById('smod-2f').disabled = false;
-    document.getElementById('smod-2a').disabled = false;
-    document.getElementById('smod-1a').disabled = true;
-    cur.outcome = '2nd serve';
-    cur.aceDir = null; cur.shots = [];
-    cur._faultStage = 1;
-    showAceDir(false);
-    showFaultDir(true);
-    updatePSF(); updateFinishBtn(); updateUndoBtn();
+  const entry = { date: localISO(), datetime: date, name, type:'morning', ...sc, total:t, pct, status, notes };
+  persist('morning', entry);
 
-  } else if (action === '2fault') {
-    document.getElementById('smod-2f').classList.add('sel');
-    cur.outcome = 'Double fault';
-    // Disable shot buttons — DF means play is over
-    setShotLock(true);
-    cur._faultStage = 2;
-    showFaultDir(true); // reset for 2nd serve fault direction
-    updatePSF();
-    // Enable Point Finished so user confirms (no auto-log)
-    document.getElementById('finish-btn').disabled = false;
-    updateUndoBtn();
+  const msg =
+`*Morning Readiness — ${name}*
+${date}
 
-  } else if (action === '1ace') {
-    document.getElementById('smod-1a').classList.add('sel');
-    cur.outcome = '1st serve ACE';
-    cur.aceDir = null; cur.shots = [];
-    showAceDir(true);
-    showFaultDir(false);
-    updatePSF();
-    document.getElementById('finish-btn').disabled = true;
-    updateUndoBtn();
+*Hooper: ${t}/28 — ${pct}%*
+😴 Sleep: ${sc.sleep}/7
+😵 Fatigue: ${sc.fatigue}/7
+😤 Stress: ${sc.stress}/7
+💪 Soreness: ${sc.soreness}/7${notes?'\n📝 '+notes:''}`;
 
-  } else if (action === '2ace') {
-    document.getElementById('smod-2a').classList.add('sel');
-    cur.outcome = '2nd serve ACE';
-    cur.aceDir = null; cur.shots = [];
-    showAceDir(true);
-    showFaultDir(false);
-    updatePSF();
-    document.getElementById('finish-btn').disabled = true;
-    updateUndoBtn();
-  }
+  openWA(msg);
+  resetMorning();
 }
 
-function showAceDir(show) {
-  document.getElementById('fbh-area').style.display = show ? 'none' : '';
-  document.getElementById('ace-dir-area').style.display = show ? '' : 'none';
-  document.getElementById('fault-dir-area').style.display = 'none';
-  if (!show) {
-    ['acd-wide','acd-t','acd-other'].forEach(id =>
-      document.getElementById(id).classList.remove('sel'));
-  }
-}
+// ── Evening send ──────────────────────────────────────────────────────────────
+function sendEvening() {
+  const name  = ls('athleteName')||'Athlete';
+  const notes = document.getElementById('eveningNotes').value.trim();
+  const _selDate = getWorkloadDate();
+  const _selDt = new Date(_selDate + 'T12:00:00');
+  const date  = _selDt.toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short'}) + ' · ' + new Date().toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  const total = SESSIONS.reduce((sum, s) => sum + getAU(s.key), 0);
 
-function setAceDir(dir) {
-  cur.aceDir = dir;
-  ['acd-wide','acd-t','acd-other'].forEach(id =>
-    document.getElementById(id).classList.remove('sel'));
-  const map = { Wide:'acd-wide', T:'acd-t', Other:'acd-other' };
-  document.getElementById(map[dir]).classList.add('sel');
-  updatePSF();
-  // ACE: auto winner = server
-  document.getElementById('finish-btn').disabled = false;
-}
+  // Build session lines — only include sessions with data
+  const lines = SESSIONS
+    .filter(s => getAU(s.key) > 0)
+    .map(s => {
+      const t = document.getElementById('t-'+s.key).value;
+      const r = document.getElementById('r-'+s.key).value;
+      return `  ${s.label}: ${t}min × RPE${r} = ${getAU(s.key)} AU`;
+    }).join('\n');
 
-const SHOT_LABELS = {
-  'FH':'FH', 'BH':'BH',
-  'FH volley':'FH Vol', 'BH volley':'BH Vol', 'Smash':'Smash'
-};
-const SHOT_CLASS = {
-  'FH':'fh', 'BH':'bh',
-  'FH volley':'net','BH volley':'net','Smash':'net'
-};
-
-const MAX_SHOTS = 4; // Return, S+1, R+1, S+2
-
-function addShot(type) {
-  if (cur.shots.length >= MAX_SHOTS) return;
-  cur.shots.push(type);
-  updatePSF();
-  updateFinishBtn();
-  // lock shots if max reached
-  if (cur.shots.length >= MAX_SHOTS) {
-    document.getElementById('fh-btn').disabled = true;
-    document.getElementById('bh-btn').disabled = true;
-    document.querySelectorAll('.net-btn').forEach(b => b.disabled = true);
-  }
-  updateUndoBtn();
-}
-
-function updatePSF() {
-  const strip = document.getElementById('psf-strip');
-  strip.innerHTML = '';
-
-  // Serve pill
-  const isAce = cur.outcome === '1st serve ACE' || cur.outcome === '2nd serve ACE';
-  const isDF  = cur.outcome === 'Double fault';
-  const pill = document.createElement('span');
-  pill.className = 'psf-pill ' + (isAce ? 'ace' : isDF ? 'df' : 'normal');
-  pill.textContent = cur.outcome;
-  strip.appendChild(pill);
-
-  if (isAce && cur.aceDir) {
-    const dp = document.createElement('span');
-    dp.className = 'psf-pill ace';
-    dp.textContent = cur.aceDir;
-    strip.appendChild(dp);
-  }
-
-  cur.shots.forEach(s => {
-    const sp = document.createElement('span');
-    sp.className = 'psf-pill ' + (SHOT_CLASS[s] || 'fh');
-    sp.textContent = SHOT_LABELS[s] || s;
-    strip.appendChild(sp);
-  });
-}
-
-function updateFinishBtn() {
-  const isAce = cur.outcome === '1st serve ACE' || cur.outcome === '2nd serve ACE';
-  const isDF  = cur.outcome === 'Double fault';
-  if (isDF) { document.getElementById('finish-btn').disabled = false; return; }
-  if (isAce) {
-    document.getElementById('finish-btn').disabled = !cur.aceDir;
-    return;
-  }
-  // Normal: can finish any time server+side set
-  document.getElementById('finish-btn').disabled = !(cur.server && cur.side);
-}
-
-function pointFinished() {
-  const isAce = cur.outcome === '1st serve ACE' || cur.outcome === '2nd serve ACE';
-  const isDF  = cur.outcome === 'Double fault';
-  if (isAce) {
-    logPoint(cur.server); // server wins ace
-  } else if (isDF) {
-    // Returner wins DF — log directly, no Who Won screen needed
-    const dfWinner = cur.server === 'P' ? 'O' : 'P';
-    logPoint(dfWinner);
-    goScreen('log-screen');
-  } else {
-    cur.lastShot = '';
-    document.querySelectorAll('.ls-btn').forEach(b => b.classList.remove('sel'));
-    goScreen('whowon');
-  }
-}
-
-let pendingWinner = null;
-
-function selectWinner(who) {
-  pendingWinner = who;
-  const pBtn = document.getElementById('ww-p');
-  const oBtn = document.getElementById('ww-o');
-  const confirmBtn = document.getElementById('ww-confirm');
-  pBtn.classList.toggle('ww-sel', who === 'P');
-  pBtn.classList.toggle('ww-dim', who === 'O');
-  oBtn.classList.toggle('ww-sel', who === 'O');
-  oBtn.classList.toggle('ww-dim', who === 'P');
-  confirmBtn.disabled = false;
-}
-
-function commitPoint() {
-  if (!pendingWinner) return;
-  logPoint(pendingWinner);
-  goScreen('log-screen');
-}
-
-const SHOT_SEQUENCE_COLS = ['Return','Serve+1','Return+1','Serve+2'];
-
-function logPoint(winnerCode) {
-  const winnerName = winnerCode === 'P' ? match.playerName : match.opp;
-  const serverName = cur.server === 'P' ? match.playerName : match.opp;
-
-  const row = {
-    Date: match.date || '',
-    Tournament: match.tourn || '',
-    Surface: match.surface || '',
-    Environment: match.env || '',
-    Set: cur.set,
-    Server: serverName,
-    Side: cur.side,
-    'Serve outcome': cur.outcome,
-    '1st serve fault': cur.faultDir1 || '',
-    'Double fault': cur.faultDir2 || '',
-    'ACE direction': (cur.outcome === '1st serve ACE' || cur.outcome === '2nd serve ACE') ? (cur.aceDir || '') : '',
-    Return: cur.shots[0] || '',
-    'Serve+1': cur.shots[1] || '',
-    'Return+1': cur.shots[2] || '',
-    'Serve+2': cur.shots[3] || '',
-    Winner: winnerName,
-    'Last shot': cur.lastShot || '',
-    '2nd last shot': cur.twoLastShot ? cur.twoLastShot + ' forcing an error' : '',
-    Where: cur.lastShotDir || '',
-    _winCode: winnerCode,
-    _serverCode: cur.server
-  };
-  match.points.push(row);
-  saveMatch();
-  resetPoint();
-}
-
-function updateUndoBtn() {
-  const hasHistory = cur.shots.length > 0 || !!cur.aceDir || cur.outcome !== '1st serve';
-  document.getElementById('undo-btn').disabled = !hasHistory;
-}
-
-function undoShot() {
-  if (cur.shots.length > 0) {
-    cur.shots.pop();
-    updatePSF();
-    // re-enable shot buttons if was at max
-    if (cur.shots.length < MAX_SHOTS && cur.server && cur.side) {
-      document.getElementById('fh-btn').disabled = false;
-      document.getElementById('bh-btn').disabled = false;
-      document.querySelectorAll('.net-btn').forEach(b => b.disabled = false);
-    }
-  } else if (cur.aceDir) {
-    cur.aceDir = null;
-    ['acd-wide','acd-t','acd-other'].forEach(id =>
-      document.getElementById(id).classList.remove('sel'));
-    updatePSF();
-    document.getElementById('finish-btn').disabled = true;
-  } else if (cur.outcome !== '1st serve') {
-    // Reset serve outcome all the way back to default 1st serve
-    cur.outcome = '1st serve';
-    cur.aceDir = null; cur.shots = [];
-    ['smod-1f','smod-2f','smod-1a','smod-2a'].forEach(id =>
-      document.getElementById(id).classList.remove('sel'));
-    document.getElementById('smod-1f').disabled = false;
-    document.getElementById('smod-1a').disabled = false;
-    document.getElementById('smod-2f').disabled = true;
-    document.getElementById('smod-2a').disabled = true;
-    if (cur.server && cur.side) setShotLock(false);
-    showAceDir(false);
-    updatePSF();
-    updateFinishBtn();
-  }
-  updateUndoBtn();
-}
-
-// ═══════════════════════════════════════════════════════
-//  POINT LOG
-// ═══════════════════════════════════════════════════════
-function renderLog() {
-  const list = document.getElementById('log-list');
-  list.innerHTML = '';
-  if (match.points.length === 0) {
-    list.innerHTML = '<div class="empty-log">No points logged yet.</div>';
-    return;
-  }
-  match.points.forEach((pt, i) => {
-    const div = document.createElement('div');
-    div.className = 'log-item' + (pendingDeleteIdx === i ? ' deleting' : '');
-    div.id = 'log-item-' + i;
-
-    const shots = [pt.Return, pt['Serve+1'], pt['Return+1'], pt['Serve+2']]
-      .filter(Boolean);
-    const isAce = pt['Serve outcome'].includes('ACE');
-    const isDF  = pt['Serve outcome'] === 'Double fault';
-
-    let psfHtml = `<span class="psf-pill ${isAce?'ace':isDF?'df':'normal'}" style="font-size:11px">${pt['Serve outcome']}</span>`;
-    if (isAce && pt['ACE direction']) psfHtml += ` <span class="psf-pill ace" style="font-size:11px">${pt['ACE direction']}</span>`;
-    if (pt['1st serve fault']) psfHtml += ` <span class="psf-pill df" style="font-size:11px">F1: ${pt['1st serve fault']}</span>`;
-    if (pt['Double fault']) psfHtml += ` <span class="psf-pill df" style="font-size:11px">DF: ${pt['Double fault']}</span>`;
-    shots.forEach(s => {
-      const cls = SHOT_CLASS[s] || 'fh';
-      psfHtml += ` <span class="psf-pill ${cls}" style="font-size:11px">${SHOT_LABELS[s]||s}</span>`;
-    });
-
-    const forcingHtml = pt['2nd last shot']
-      ? `<div class="log-lastshot" style="font-size:11px">🎾 ${pt['2nd last shot']}</div>`
-      : '';
-    const lastShotHtml = pt['Last shot']
-      ? `<div class="log-lastshot" style="font-size:11px">💥 ${pt['Last shot']}${pt.Where ? ' · ' + pt.Where : ''}</div>`
-      : '';
-
-    div.innerHTML = `
-      <div class="log-item-row1">
-        <span class="log-num">#${i+1}</span>
-        <span class="log-meta">${pt.Set} · ${pt.Server.split(' ').pop()} serving · ${pt.Side}</span>
-        <span class="log-winner" style="color:${pt._winCode==='P'?'var(--green)':'var(--fg2)'}">${pt.Winner.split(' ').pop()} won</span>
-        <button class="log-edit" onclick="openEdit(${i})">Edit</button>
-        <button class="log-del" onclick="askDelete(${i})">Delete</button>
-      </div>
-      <div class="log-shots">${psfHtml}</div>
-      ${forcingHtml}${lastShotHtml}
-    `;
-    list.appendChild(div);
-  });
-
-  // scroll to bottom so most recent point is visible immediately
-  list.scrollTop = list.scrollHeight;
-
-  // update delete bar
-  if (pendingDeleteIdx !== null) {
-    const pt = match.points[pendingDeleteIdx];
-    document.getElementById('del-confirm-text').textContent =
-      `Delete point #${pendingDeleteIdx+1} (${pt.Side} · ${pt['Serve outcome']})?`;
-    document.getElementById('del-confirm').style.display = 'flex';
-  } else {
-    document.getElementById('del-confirm').style.display = 'none';
-  }
-}
-
-function askDelete(i) {
-  pendingDeleteIdx = i;
-  renderLog();
-}
-function cancelDelete() {
-  pendingDeleteIdx = null;
-  renderLog();
-}
-function confirmDelete() {
-  if (pendingDeleteIdx !== null) {
-    match.points.splice(pendingDeleteIdx, 1);
-    saveMatch();
-    pendingDeleteIdx = null;
-    renderLog();
-  }
-}
-
-// ═══════════════════════════════════════════════════════
-//  EDIT POINT
-// ═══════════════════════════════════════════════════════
-let editIdx = null;
-let editState = {};
-
-function buildEditLastShotSelect() {
-  const sel = document.getElementById('edit-last-shot');
-  sel.innerHTML = '<option value="">— none —</option>';
-  const wg = document.createElement('optgroup');
-  wg.label = 'Winners';
-  LS_WINNERS.forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; wg.appendChild(o); });
-  const eg = document.createElement('optgroup');
-  eg.label = 'Errors';
-  LS_ERRORS.forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; eg.appendChild(o); });
-  sel.appendChild(wg);
-  sel.appendChild(eg);
-}
-
-function openEdit(i) {
-  editIdx = i;
-  const pt = match.points[i];
-  // Parse stored '2nd last shot' back to shot name (stored as "FH forcing an error")
-  const raw2nd = pt['2nd last shot'] || '';
-  const forcingShot = raw2nd.replace(' forcing an error', '');
-  editState = {
-    server: pt._serverCode,
-    side: pt.Side,
-    winner: pt._winCode,
-    aceDir: pt['ACE direction'] || '',
-    fault1: pt['1st serve fault'] || '',
-    fault2: pt['Double fault'] || '',
-    lastShot: pt['Last shot'] || '',
-    errCat: '',
-    errOut: '',
-    forcing: forcingShot,
-  };
-
-  // Title
-  document.getElementById('edit-title').textContent = `Edit Point #${i+1}`;
-
-  // Server buttons
-  const srvRow = document.getElementById('edit-server-row');
-  srvRow.children[0].textContent = match.playerName;
-  srvRow.children[1].textContent = match.opp;
-  editPick('server', editState.server, null, true);
-
-  // Side
-  editPick('side', editState.side, null, true);
-
-  // Serve outcome
-  document.getElementById('edit-serve-outcome').value = pt['Serve outcome'];
-  editServeOutcomeChange(); // show/hide conditional sections
-
-  // ACE direction
-  editPick('aceDir', editState.aceDir, null, true);
-
-  // Fault directions
-  editPick('fault1', editState.fault1, null, true);
-  editPick('fault2', editState.fault2, null, true);
-
-  // Shot sequence
-  const seqCols = ['Return','Serve+1','Return+1','Serve+2'];
-  seqCols.forEach((col, idx) => {
-    document.getElementById(`edit-shot-${idx}`).value = pt[col] || '';
-  });
-
-  // Winner buttons
-  const winRow = document.getElementById('edit-winner-row');
-  winRow.children[0].textContent = match.playerName + ' won';
-  winRow.children[1].textContent = match.opp + ' won';
-  editPick('winner', editState.winner, null, true);
-
-  // Last shot select
-  buildEditLastShotSelect();
-  document.getElementById('edit-last-shot').value = editState.lastShot;
-  document.getElementById('edit-last-shot').addEventListener('change', editLastShotChange);
-  editLastShotChange(); // shows/hides sections; does NOT clear editState.forcing
-  // Restore forcing shot highlight (editState.forcing set above, survives editLastShotChange)
-  document.querySelectorAll('[data-efield="forcing"]').forEach(b => {
-    b.classList.toggle('sel', b.dataset.val === editState.forcing && editState.forcing !== '');
-  });
-
-  // Parse stored Where string back into direction buttons
-  const where = pt.Where || '';
-  const cats = ['Inside in','Inside out','Line','Cross','Middle'];
-  const outs = ['net','long','wide'];
-  for (const c of cats) {
-    if (where.toLowerCase().startsWith(c.toLowerCase())) {
-      editState.errCat = c;
-      document.querySelectorAll('[data-efield="errCat"]').forEach(b => {
-        b.classList.toggle('sel', b.dataset.val === c);
-      });
-      break;
-    }
-  }
-  for (const o of outs) {
-    if (where.toLowerCase().endsWith(o)) {
-      editState.errOut = o;
-      document.querySelectorAll('[data-efield="errOut"]').forEach(b => {
-        b.classList.toggle('sel', b.dataset.val === o);
-      });
-      break;
-    }
-  }
-
-  document.getElementById('edit-overlay').style.display = 'flex';
-}
-
-function editServeOutcomeChange() {
-  const v = document.getElementById('edit-serve-outcome').value;
-  const is1stAce  = v === '1st serve ACE';
-  const is2ndAce  = v === '2nd serve ACE';
-  const isAce     = is1stAce || is2ndAce;
-  const isDF      = v === 'Double fault';
-  const had1stFault = v === '2nd serve' || is2ndAce || isDF; // 1st serve was a fault
-  document.getElementById('edit-ace-section').style.display    = isAce ? '' : 'none';
-  document.getElementById('edit-fault1-section').style.display = had1stFault ? '' : 'none';
-  document.getElementById('edit-fault2-section').style.display = isDF ? '' : 'none';
-  document.getElementById('edit-rally-section').style.display  = (isAce || isDF) ? 'none' : '';
-}
-
-function editLastShotChange() {
-  const ls = document.getElementById('edit-last-shot').value;
-  const hasShot   = ls !== '';
-  const isWinner  = ls.includes('winner');
-  const isError   = ls.includes(' error');
-  const isForced  = ls.includes(' forced error') && !ls.startsWith('Return');
-  // Direction (Where) shown for winners and unforced errors — NOT for forced errors
-  document.getElementById('edit-where-section').style.display = (hasShot && !isForced) ? '' : 'none';
-  // Net/long/wide only for unforced errors
-  document.getElementById('edit-errout-row').style.display = (isError && !isForced) ? 'flex' : 'none';
-  // Forcing shot only for non-return forced errors
-  document.getElementById('edit-forcing-section').style.display = isForced ? '' : 'none';
-  // Reset direction state only
-  editState.errCat = ''; editState.errOut = '';
-  document.querySelectorAll('[data-efield="errCat"]').forEach(b => b.classList.remove('sel'));
-  document.querySelectorAll('[data-efield="errOut"]').forEach(b => b.classList.remove('sel'));
-  // Reset forcing only when switching away from a forced error shot
-  if (!isForced) {
-    editState.forcing = '';
-    document.querySelectorAll('[data-efield="forcing"]').forEach(b => b.classList.remove('sel'));
-  }
-}
-
-function editPickDir(val, btn) {
-  editState.errCat = val;
-  document.querySelectorAll('[data-efield="errCat"]').forEach(b => b.classList.remove('sel'));
-  btn.classList.add('sel');
-  const ls = document.getElementById('edit-last-shot').value;
-  if (ls.includes('winner')) {
-    document.getElementById('edit-errout-row').style.display = 'none';
-    editState.errOut = '';
-  }
-}
-
-function editPickErrOut(val, btn) {
-  editState.errOut = val;
-  document.querySelectorAll('[data-efield="errOut"]').forEach(b => b.classList.remove('sel'));
-  btn.classList.add('sel');
-}
-
-function editPickForcing(val, btn) {
-  editState.forcing = val;
-  document.querySelectorAll('[data-efield="forcing"]').forEach(b => b.classList.remove('sel'));
-  btn.classList.add('sel');
-}
-
-function editPick(field, val, btn, silent) {
-  editState[field] = val;
-  // Find all buttons for this field and update sel class
-  const allBtns = document.querySelectorAll(`[data-efield="${field}"]`);
-  allBtns.forEach(b => b.classList.toggle('sel', b.dataset.val === val));
-}
-
-function editOverlayClick(e) {
-  if (e.target === document.getElementById('edit-overlay')) closeEdit();
-}
-
-function closeEdit() {
-  // Clean up last-shot change listener
-  document.getElementById('edit-last-shot').removeEventListener('change', editLastShotChange);
-  editIdx = null;
-  document.getElementById('edit-overlay').style.display = 'none';
-}
-
-function saveEdit() {
-  if (editIdx === null) return;
-  const pt = match.points[editIdx];
-  const serveOutcome = document.getElementById('edit-serve-outcome').value;
-  const isAce = serveOutcome.includes('ACE');
-  const isDF  = serveOutcome === 'Double fault';
-
-  // Server / Side
-  pt._serverCode = editState.server;
-  pt.Server = editState.server === 'P' ? match.playerName : match.opp;
-  pt.Side = editState.side;
-
-  // Serve outcome + direction fields
-  pt['Serve outcome'] = serveOutcome;
-  pt['ACE direction'] = isAce ? (editState.aceDir || '') : '';
-  pt['1st serve fault'] = (!isAce && !isDF) ? (editState.fault1 || '') : '';
-  pt['Double fault']    = isDF ? (editState.fault2 || '') : '';
-
-  // Shot sequence
-  const seqCols = ['Return','Serve+1','Return+1','Serve+2'];
-  if (isAce || isDF) {
-    seqCols.forEach(col => { pt[col] = ''; });
-  } else {
-    seqCols.forEach((col, idx) => {
-      pt[col] = document.getElementById(`edit-shot-${idx}`).value;
-    });
-  }
-
-  // Winner
-  pt._winCode = editState.winner;
-  pt.Winner = editState.winner === 'P' ? match.playerName : match.opp;
-
-  // Last shot + 2nd last shot (forcing shot)
-  const lastShot = document.getElementById('edit-last-shot').value;
-  pt['Last shot'] = lastShot;
-  const isForced = lastShot.includes(' forced error') && !lastShot.startsWith('Return');
-  pt['2nd last shot'] = (isForced && editState.forcing) ? `${editState.forcing} forcing an error` : '';
-
-  // Build Where — matches logPoint format exactly
-  // Winners: "Cross winner", "Line winner" etc
-  // Errors:  "Cross long", "Line net" etc
-  const isWinner = lastShot.includes('winner');
-  const isError  = lastShot.includes(' error');
-  if (isWinner && editState.errCat) {
-    pt.Where = `${editState.errCat} winner`;
-  } else if (isError && editState.errCat && editState.errOut) {
-    pt.Where = `${editState.errCat} ${editState.errOut}`;
-  } else if (isError && editState.errCat) {
-    pt.Where = editState.errCat; // partial — cat only
-  } else {
-    pt.Where = '';
-  }
-
-  // Remove the change listener to avoid duplicates on reopen
-  const lsSel = document.getElementById('edit-last-shot');
-  lsSel.removeEventListener('change', editLastShotChange);
-
-  saveMatch();
-  closeEdit();
-  renderLog();
-}
-
-// ═══════════════════════════════════════════════════════
-//  ANALYSE
-// ═══════════════════════════════════════════════════════
-function barRow(label, val, denom, color) {
-  const p = pct(val, denom);
-  const col = color || 'var(--accent)';
-  return `<div class="stat-row"><span class="stat-label">${label} (${val}/${denom})</span><span class="stat-val" style="color:${col}">${p}%</span></div><div class="stat-bar-wrap"><div class="stat-bar" style="width:${p}%;background:${col}"></div></div>`;
-}
-function numRow(label, val, color) {
-  return `<div class="stat-row"><span class="stat-label">${label}</span><span class="stat-val" style="color:${color||'var(--fg)'}">${val}</span></div>`;
-}
-function countBy(arr, key) {
-  return arr.reduce((acc, item) => {
-    const k = item[key] || '—';
-    acc[k] = (acc[k] || 0) + 1;
-    return acc;
+  const sessionData = SESSIONS.reduce((obj, s) => {
+    obj[s.key] = { t: document.getElementById('t-'+s.key).value||0, r: document.getElementById('r-'+s.key).value||0, au: getAU(s.key) };
+    return obj;
   }, {});
+
+  const entry = { date: _selDate, datetime: date, name, type:'evening', sessions: sessionData, total, notes };
+  persistEvening(entry);
+
+  const msg =
+`*Training Workload — ${name}*
+${date}
+
+${lines || '  No sessions logged'}
+
+*Total: ${total.toLocaleString()} AU*${notes?'\n📝 '+notes:''}`;
+  openWA(msg);
+  clearEvening();
 }
 
-function renderAnalyse() {
-  const body = document.getElementById('analyse-body');
-  const s = computeStats();
-  if (!s) {
-    body.innerHTML = '<div style="text-align:center;color:var(--fg2);padding:40px">No points yet.</div>';
-    return;
-  }
-  const { n, pWon, pS, oS, s1In, s2In, sDFs, sAce, os1In, os2In, oDFs, oAce,
-          netPts, allShots, pSD, pSA, pRD, pRA, ls, bySet, ralLen } = s;
-  const P = match.playerName || 'Player';
-  const O = match.opp || 'Opponent';
-  const oWon = n - pWon;
-  const pH = match.playerHand || 'R';
-  const oH = match.oppHand || 'R';
-  const pDside = pH==='R' ? 'Deuce (FH)' : 'Deuce (BH)';
-  const pAside = pH==='R' ? 'Ad (BH)' : 'Ad (FH)';
-  const oDside = oH==='R' ? 'Deuce (BH opp)' : 'Deuce (FH opp)';
-  const oAside = oH==='R' ? 'Ad (FH opp)' : 'Ad (BH opp)';
-
-  // Shot distribution helpers
-  const FH_SHOTS = ['FH','FH slice'];
-  const BH_SHOTS = ['BH','BH slice'];
-  const NET_SHOTS = ['FH volley','BH volley','Smash'];
-  const fhCount = allShots.filter(sh => FH_SHOTS.includes(sh)).length;
-  const bhCount = allShots.filter(sh => BH_SHOTS.includes(sh)).length;
-  const netCount = allShots.filter(sh => NET_SHOTS.includes(sh)).length;
-  const totalShots = allShots.length;
-
-  // Net approach win %
-  const netWon = netPts.filter(pt => pt._winCode==='P').length;
-
-  // Serve+1 (player's shot after 1st serve goes in)
-  const sp1pts = pS.filter(pt => pt['Serve+1']);
-  const sp1ByShot = countBy(sp1pts, 'Serve+1');
-
-  // Return+1 (player's shot after receiving)
-  const rp1pts = oS.filter(pt => pt['Return+1']);
-  const rp1ByShot = countBy(rp1pts, 'Return+1');
-
-  // Last shot analysis
-  const lsWinnerPts  = ls.filter(pt => pt['Last shot'].includes('winner') && pt._winCode==='P');
-  const lsOppErrPts  = ls.filter(pt => pt['Last shot'].includes('error')  && pt._winCode==='P');
-  const lsOppWinPts  = ls.filter(pt => pt['Last shot'].includes('winner') && pt._winCode==='O');
-  const lsPlayerErrPts = ls.filter(pt => pt['Last shot'].includes('error') && pt._winCode==='O');
-
-  // Rally length proxy
-  const serveEnd   = pS.filter(pt => ralLen(pt) === 0).length;
-  const shortRally = pS.filter(pt => ralLen(pt) >= 1 && ralLen(pt) <= 2).length;
-  const longRally  = pS.filter(pt => ralLen(pt) >= 3).length;
-  const rTotal = pS.length;
-
-  // BH / FH return breakdown
-  const fhRet = oS.filter(pt => pt.Return==='FH');
-  const bhRet = oS.filter(pt => pt.Return==='BH');
-  const fhRetWon = fhRet.filter(pt => pt._winCode==='P').length;
-  const bhRetWon = bhRet.filter(pt => pt._winCode==='P').length;
-
-  const coaching = getCoachingPoint(match.points, P);
-
-  let html = '';
-
-  // ── 1. Overall ──
-  html += `<div class="stat-card"><div class="stat-card-title">Overall</div>
-    ${barRow(P+' points won', pWon, n, 'var(--green)')}
-    ${barRow(O+' points won', oWon, n, 'var(--red)')}
-  </div>`;
-
-  // ── 2. Player Serve ──
-  const s1WonPts = s1In.filter(pt => pt._winCode==='P').length;
-  const s2WonPts = s2In.filter(pt => pt._winCode==='P').length;
-  const sAllWon  = pS.filter(pt => pt._winCode==='P').length;
-  html += `<div class="stat-card"><div class="stat-card-title">${P} — Serve</div>
-    ${barRow('1st serve in', s1In.length, pS.length)}
-    ${barRow('1st serve win %', s1WonPts, s1In.length)}
-    ${barRow('2nd serve win %', s2WonPts, s2In.length)}
-    ${barRow('Overall serve win %', sAllWon, pS.length, 'var(--accent)')}
-    ${numRow('Aces', sAce.length, 'var(--green)')}
-    ${numRow('Double faults', sDFs.length, 'var(--red)')}
-  </div>`;
-
-  // ── 3. Serve by Court Side ──
-  const pSDWon = pSD.filter(pt=>pt._winCode==='P').length;
-  const pSAWon = pSA.filter(pt=>pt._winCode==='P').length;
-  html += `<div class="stat-card"><div class="stat-card-title">${P} — Serve by Court</div>
-    ${barRow(pDside+' serve win %', pSDWon, pSD.length)}
-    ${barRow(pAside+' serve win %', pSAWon, pSA.length)}
-  </div>`;
-
-  // ── 4. Opponent Serve (return performance) ──
-  const os1WonPts = os1In.filter(pt=>pt._winCode==='P').length;
-  const oAllWon   = oS.filter(pt=>pt._winCode==='P').length;
-  const pRDWon = pRD.filter(pt=>pt._winCode==='P').length;
-  const pRAWon = pRA.filter(pt=>pt._winCode==='P').length;
-  html += `<div class="stat-card"><div class="stat-card-title">${P} — Return</div>
-    ${barRow('Return win %', oAllWon, oS.length, 'var(--green)')}
-    ${barRow('vs 1st serve win %', os1WonPts, os1In.length)}
-    ${barRow('vs 2nd serve win %', oS.filter(pt=>['2nd serve','2nd serve ACE'].includes(pt['Serve outcome'])&&pt._winCode==='P').length, os2In.length)}
-    ${barRow(oDside+' return win %', pRDWon, pRD.length)}
-    ${barRow(oAside+' return win %', pRAWon, pRA.length)}
-    ${barRow('FH return win %', fhRetWon, fhRet.length)}
-    ${barRow('BH return win %', bhRetWon, bhRet.length)}
-  </div>`;
-
-  // ── 5. Shot Distribution ──
-  html += `<div class="stat-card"><div class="stat-card-title">Shot Distribution (all rally shots)</div>
-    ${numRow('Total shots logged', totalShots)}
-    ${barRow('Forehand (FH)', fhCount, totalShots)}
-    ${barRow('Backhand (BH)', bhCount, totalShots)}
-    ${barRow('Net shots', netCount, totalShots, 'var(--purple)')}
-  </div>`;
-
-  // ── 6. Net Approach ──
-  html += `<div class="stat-card"><div class="stat-card-title">Net Approach</div>
-    ${barRow('Points reaching net', netPts.length, n)}
-    ${barRow('Net approach win %', netWon, netPts.length, 'var(--purple)')}
-  </div>`;
-
-  // ── 7. Patterns of Play ──
-  const sp1Keys = Object.keys(sp1ByShot).sort((a,b)=>sp1ByShot[b]-sp1ByShot[a]);
-  const rp1Keys = Object.keys(rp1ByShot).sort((a,b)=>rp1ByShot[b]-rp1ByShot[a]);
-  let patHtml = `<div class="stat-card-title">Patterns of Play</div>`;
-  if (sp1Keys.length) {
-    patHtml += `<div class="stat-sub">Serve+1 (your shot after 1st in)</div>`;
-    sp1Keys.forEach(k => { patHtml += numRow(k, sp1ByShot[k]); });
-  }
-  if (rp1Keys.length) {
-    patHtml += `<div class="stat-sub" style="margin-top:6px">Return+1 (your shot after return)</div>`;
-    rp1Keys.forEach(k => { patHtml += numRow(k, rp1ByShot[k]); });
-  }
-  if (rTotal > 0) {
-    patHtml += `<div class="stat-sub" style="margin-top:6px">Rally length (your serve games)</div>`;
-    patHtml += barRow('Serve ends it (ace/DF)', serveEnd, rTotal);
-    patHtml += barRow('Short rally (1-2 shots)', shortRally, rTotal);
-    patHtml += barRow('Extended (3-4 shots)', longRally, rTotal);
-  }
-  html += `<div class="stat-card">${patHtml}</div>`;
-
-  // ── 8. How Points Ended ──
-  if (ls.length > 0) {
-    const wByShot = countBy(lsWinnerPts, 'Last shot');
-    const eByShot = countBy(lsOppErrPts, 'Last shot');
-    const owByShot= countBy(lsOppWinPts, 'Last shot');
-    const peByShot= countBy(lsPlayerErrPts, 'Last shot');
-    let lsHtml = `<div class="stat-card-title">How Points Ended</div>`;
-    lsHtml += `<div class="stat-sub">${P} winners (${lsWinnerPts.length})</div>`;
-    Object.keys(wByShot).forEach(k => { lsHtml += numRow(k, wByShot[k], 'var(--green)'); });
-    lsHtml += `<div class="stat-sub" style="margin-top:6px">${O} errors → ${P} wins (${lsOppErrPts.length})</div>`;
-    Object.keys(eByShot).forEach(k => { lsHtml += numRow(k, eByShot[k], 'var(--green)'); });
-    lsHtml += `<div class="stat-sub" style="margin-top:6px">${O} winners (${lsOppWinPts.length})</div>`;
-    Object.keys(owByShot).forEach(k => { lsHtml += numRow(k, owByShot[k], 'var(--red)'); });
-    lsHtml += `<div class="stat-sub" style="margin-top:6px">${P} errors (${lsPlayerErrPts.length})</div>`;
-    Object.keys(peByShot).forEach(k => { lsHtml += numRow(k, peByShot[k], 'var(--red)'); });
-    html += `<div class="stat-card">${lsHtml}</div>`;
-  }
-
-  // ── 9. Score Analysis ──
-  const scoreData = computeScoreColumns(match.points, P, O);
-  if (scoreData.length) {
-    // Player serving: win % by score situation
-    const SIT_ORDER = ['0-0','15-0','0-15','30-0','15-15','0-30','40-0','30-15','15-30','0-40','Deuce','Ad Server','Ad Returner','Break point','Server game pt'];
-    const sitWin = {};  // sit -> {won, total}
-    const bpData = { pConvert: {won:0,total:0}, pSave: {won:0,total:0} };
-
-    for (let i = 0; i < match.points.length; i++) {
-      const pt = match.points[i];
-      const sc = scoreData[i];
-      if (!sc || sc.Mode !== 'NORMAL') continue;
-      const sit = sc.ScoreSituation;
-      if (!sitWin[sit]) sitWin[sit] = {won:0, total:0};
-      const isServerP = sc.ServerIsPlayer;
-      const playerWon = pt._winCode === 'P';
-      // Score situation for player context: if player is returner, flip BP/server GP labels
-      let displaySit = sit;
-      if (!isServerP) {
-        if (sit === 'Break point') displaySit = 'Break point (opp)';
-        else if (sit === 'Ad Server') displaySit = 'Ad Opp';
-        else if (sit === 'Ad Returner') displaySit = 'Ad Player';
-      }
-      if (!sitWin[displaySit]) sitWin[displaySit] = {won:0, total:0};
-      sitWin[displaySit].total++;
-      if (playerWon) sitWin[displaySit].won++;
-
-      // Break point tracking: player serving
-      if (isServerP && sc.IsBreakPoint) {
-        bpData.pSave.total++;
-        if (playerWon) bpData.pSave.won++;
-      }
-      // Break point tracking: player returning
-      if (!isServerP && sc.IsBreakPoint) {
-        bpData.pConvert.total++;
-        if (playerWon) bpData.pConvert.won++;
-      }
-    }
-
-    let scHtml = `<div class="stat-card-title">Score Analysis</div>`;
-    // Break points
-    scHtml += `<div class="stat-sub">Break Points</div>`;
-    if (bpData.pConvert.total) {
-      scHtml += barRow('BP converted (returning)', bpData.pConvert.won, bpData.pConvert.total, 'var(--green)');
-    }
-    if (bpData.pSave.total) {
-      scHtml += barRow('BP saved (serving)', bpData.pSave.won, bpData.pSave.total, 'var(--amber)');
-    }
-    // Game situation win% (top situations by frequency)
-    const sitKeys = Object.keys(sitWin).filter(k => sitWin[k].total >= 2)
-      .sort((a,b) => sitWin[b].total - sitWin[a].total).slice(0, 10);
-    if (sitKeys.length) {
-      scHtml += `<div class="stat-sub" style="margin-top:6px">Win % by Game Situation</div>`;
-      const gridRows = [['Situation','Won','Win%']];
-      sitKeys.forEach(k => {
-        const {won, total} = sitWin[k];
-        const w = pct(won, total);
-        const cls = w >= 55 ? 'good' : w <= 40 ? 'bad' : '';
-        scHtml += `<div class="score-sit-grid">
-          <span class="sit">${k}</span>
-          <span class="val">${won}/${total}</span>
-          <span class="val ${cls}">${w}%</span>
-        </div>`;
-      });
-    }
-    html += `<div class="stat-card">${scHtml}</div>`;
-  }
-
-  // ── 10. Serve Direction ──
-  const oH2 = match.oppHand || 'R';
-  const dirData = { pServe: { Wide:{won:0,total:0}, T:{won:0,total:0} } };
-  for (const pt of match.points) {
-    if (pt._serverCode !== 'P') continue;
-    let dir = '';
-    if (pt['Serve outcome'].includes('ACE') && pt['Where'] && ['Wide','T'].includes(pt['Where'])) {
-      dir = pt['Where'];
-    } else if (pt.Return) {
-      dir = serveDirection(pt.Side, pt.Return, oH2);
-    }
-    if (!dir) continue;
-    dirData.pServe[dir].total++;
-    if (pt._winCode === 'P') dirData.pServe[dir].won++;
-  }
-  const wideTotal = dirData.pServe.Wide.total;
-  const tTotal = dirData.pServe.T.total;
-  if (wideTotal + tTotal > 0) {
-    const wideWon = dirData.pServe.Wide.won;
-    const tWon = dirData.pServe.T.won;
-    let dirHtml = `<div class="stat-card-title">Serve Direction</div>`;
-    dirHtml += `<div class="stat-sub">${P} serve direction (derived)</div>`;
-    if (wideTotal) dirHtml += barRow('Wide', wideWon, wideTotal, 'var(--accent)');
-    if (tTotal)    dirHtml += barRow('T', tWon, tTotal, 'var(--purple)');
-    html += `<div class="stat-card">${dirHtml}</div>`;
-  }
-
-  // ── 11. By Set ──
-  if (bySet.length > 1) {
-    let setHtml = `<div class="stat-card-title">By Set</div>`;
-    bySet.forEach(sv => {
-      setHtml += barRow(`Set ${sv.set}`, sv.pWon, sv.n);
-    });
-    html += `<div class="stat-card">${setHtml}</div>`;
-  }
-
-  // ── 12. Coaching Point ──
-  html += `<div class="coaching-card"><div class="coaching-label">🎯 Coaching point</div><div class="coaching-text">${coaching}</div></div>`;
-
-  body.innerHTML = html;
-}
-
-function pct(n, d) {
-  if (!d) return 0;
-  return Math.round(100 * n / d);
-}
-
-// ═══════════════════════════════════════════════════════
-//  SCORE ENGINE  (port of score_engine.py)
-// ═══════════════════════════════════════════════════════
-const POINT_LABEL = {0:'0', 1:'15', 2:'30', 3:'40'};
-
-function computeScoreColumns(pts, playerName, oppName) {
-  // Returns array of objects with score metadata for each point (same order as pts)
-  if (!pts.length) return [];
-
-  // --- Step 1: segment into blocks (consecutive same-server + same-set rows)
-  const blocks = [];
-  let cur_block = null;
-  for (let i = 0; i < pts.length; i++) {
-    const pt = pts[i];
-    const srv = pt.Server;
-    const set = pt.Set;
-    if (!cur_block || cur_block.server !== srv || cur_block.set !== set) {
-      cur_block = { server: srv, set: set, indices: [], start: i };
-      blocks.push(cur_block);
-    }
-    cur_block.indices.push(i);
-  }
-
-  // --- Step 2: detect tiebreaks per set
-  // Tiebreak signature: a 1-point block. The first such block in a set = start of tiebreak.
-  // All subsequent blocks in that set with <=2 points are also TIEBREAK.
-  // 'Match-tiebreaker' set name => MATCH_TB
-  const setTBStart = {}; // setName -> block index of tiebreak start
-  for (let bi = 0; bi < blocks.length; bi++) {
-    const b = blocks[bi];
-    if (b.set === 'Match-tiebreaker') {
-      b.mode = 'MATCH_TB';
-      continue;
-    }
-    if (!(b.set in setTBStart)) {
-      if (b.indices.length === 1) {
-        setTBStart[b.set] = bi;
-        b.mode = 'TIEBREAK';
-      } else {
-        b.mode = 'NORMAL';
-      }
-    } else {
-      b.mode = (b.indices.length <= 2) ? 'TIEBREAK' : 'NORMAL';
-    }
-  }
-
-  // --- Step 3: walk through blocks computing running scores
-  const result = new Array(pts.length);
-
-  // Track set scores across blocks
-  const setScores = {}; // setName -> {P: games, O: games}
-
-  for (let bi = 0; bi < blocks.length; bi++) {
-    const b = blocks[bi];
-    const mode = b.mode;
-
-    if (!(b.set in setScores)) setScores[b.set] = {P: 0, O: 0};
-    const sg = setScores[b.set];
-
-    if (mode === 'TIEBREAK' || mode === 'MATCH_TB') {
-      // Tiebreak: points count directly
-      // Across all tiebreak blocks in this set, maintain cumulative tiebreak score
-      // Need to track cumulative across blocks — find all TB blocks so far in this set
-      let tbP = 0, tbO = 0;
-      // sum previous TB blocks in same set
-      for (let pbi = 0; pbi < bi; pbi++) {
-        const pb = blocks[pbi];
-        if (pb.set === b.set && (pb.mode === 'TIEBREAK' || pb.mode === 'MATCH_TB')) {
-          for (const idx of pb.indices) {
-            const pt = pts[idx];
-            if (pt._winCode === 'P') tbP++; else tbO++;
-          }
-        }
-      }
-      // Walk this block
-      for (const idx of b.indices) {
-        const pt = pts[idx];
-        const isServerP = pt._serverCode === 'P';
-        result[idx] = {
-          GameScore: `${tbP}-${tbO}`,
-          SetScore: `${sg.P}-${sg.O}`,
-          Set: b.set,
-          Mode: mode,
-          IsBreakPoint: false,
-          IsServerGamePt: false,
-          ScoreSituation: `TB ${tbP}-${tbO}`,
-          ServerIsPlayer: isServerP
-        };
-        if (pt._winCode === 'P') tbP++; else tbO++;
-      }
-    } else {
-      // NORMAL game
-      let ps = 0, pr = 0; // server points, returner points
-      const isServerP = pts[b.indices[0]]._serverCode === 'P';
-
-      for (const idx of b.indices) {
-        const pt = pts[idx];
-        // Scores BEFORE applying this point
-        const psL = POINT_LABEL[ps] || String(ps);
-        const prL = POINT_LABEL[pr] || String(pr);
-
-        let gameScore, scoreSit, isBreakPt, isServerGP;
-
-        if (ps >= 3 && pr >= 3) {
-          // Deuce or Advantage
-          if (ps === pr) {
-            gameScore = 'Deuce';
-            scoreSit = 'Deuce';
-            isBreakPt = false;
-            isServerGP = false;
-          } else if (ps > pr) {
-            gameScore = 'Ad Server';
-            scoreSit = 'Ad Server';
-            isBreakPt = false;
-            isServerGP = true;
-          } else {
-            gameScore = 'Ad Returner';
-            scoreSit = 'Ad Returner';
-            isBreakPt = true;
-            isServerGP = false;
-          }
-        } else {
-          gameScore = `${psL}-${prL}`;
-          isBreakPt = (pr >= 3 && pr > ps);
-          isServerGP = (ps >= 3 && ps > pr);
-          // Classify score situation
-          if (ps === 0 && pr === 0) {
-            scoreSit = '0-0';
-          } else if (isBreakPt) {
-            scoreSit = 'Break point';
-          } else if (isServerGP) {
-            scoreSit = 'Server game pt';
-          } else {
-            scoreSit = gameScore; // e.g. '15-0', '0-30', etc.
-          }
-        }
-
-        result[idx] = {
-          GameScore: gameScore,
-          SetScore: `${sg.P}-${sg.O}`,
-          Set: b.set,
-          Mode: mode,
-          IsBreakPoint: isBreakPt,
-          IsServerGamePt: isServerGP,
-          ScoreSituation: scoreSit,
-          ServerIsPlayer: isServerP
-        };
-
-        // Apply outcome
-        if (pt._winCode === pt._serverCode) ps++; else pr++;
-
-        // Did server win game?
-        const srvWon = (pr < ps && ps >= 4) ||
-                       (ps >= 3 && pr >= 3 && ps > pr);
-        // Did returner win game?
-        const retWon = (ps < pr && pr >= 4) ||
-                       (ps >= 3 && pr >= 3 && pr > ps);
-
-        if (srvWon || retWon) {
-          // determine who won in P/O terms
-          if (srvWon) {
-            if (isServerP) sg.P++; else sg.O++;
-          } else {
-            if (isServerP) sg.O++; else sg.P++;
-          }
-        }
-      }
-    }
-  }
-
-  return result;
-}
-
-// Derive serve direction (Wide or T) from court side + return shot + receiver handedness
-// Returns 'Wide', 'T', or '' (unknown)
-function serveDirection(side, returnShot, receiverHand) {
-  if (!side || !returnShot) return '';
-  const rh = receiverHand || 'R';
-  const shot = returnShot.toUpperCase().startsWith('FH') ? 'FH' :
-               returnShot.toUpperCase().startsWith('BH') ? 'BH' : '';
-  if (!shot) return '';
-  // Deuce court: FH(R-hand)=Wide, BH=T; Ad court: FH=T, BH=Wide
-  // (reversed for left-hander)
-  if (rh === 'R') {
-    if (side === 'Deuce') return shot === 'FH' ? 'Wide' : 'T';
-    if (side === 'Ad')    return shot === 'FH' ? 'T'    : 'Wide';
+// ── Save locally only ─────────────────────────────────────────────────────────
+function saveLocal(type) {
+  if (type === 'morning') {
+    const t = sc.sleep + sc.fatigue + sc.stress + sc.soreness;
+    const status = t<=13?'🟢 Ready':t<=19?'⚪ OK':t<=23?'🟡 Monitor':'🔴 High load';
+    persist('morning', { date: localISO(), datetime: new Date().toLocaleString('en-GB'), name: ls('athleteName')||'Athlete', type:'morning', ...sc, total:t, status, notes: document.getElementById('morningNotes').value.trim() });
   } else {
-    if (side === 'Deuce') return shot === 'BH' ? 'Wide' : 'T';
-    if (side === 'Ad')    return shot === 'BH' ? 'T'    : 'Wide';
+    const total = SESSIONS.reduce((sum, s) => sum + getAU(s.key), 0);
+    const sessionData = SESSIONS.reduce((obj, s) => { obj[s.key] = { au: getAU(s.key) }; return obj; }, {});
+    persistEvening({ date: getWorkloadDate(), datetime: new Date().toLocaleString('en-GB'), name: ls('athleteName')||'Athlete', type:'evening', sessions: sessionData, total, notes: document.getElementById('eveningNotes').value.trim() });
   }
-  return '';
+  toast('💾 Saved locally');
+  if (type === 'morning') resetMorning();
+  if (type === 'evening') clearEvening();
 }
 
-// ═══════════════════════════════════════════════════════
-//  STATS ENGINE
-// ═══════════════════════════════════════════════════════
-function computeStats() {
-  const pts = match.points;
-  const n = pts.length;
-  if (!n) return null;
-  const NET = ['FH volley','BH volley','Smash'];
-  const pS  = pts.filter(pt => pt._serverCode === 'P');
-  const oS  = pts.filter(pt => pt._serverCode === 'O');
-  const s1In  = pS.filter(pt => ['1st serve','1st serve ACE'].includes(pt['Serve outcome']));
-  const s2In  = pS.filter(pt => ['2nd serve','2nd serve ACE'].includes(pt['Serve outcome']));
-  const sDFs  = pS.filter(pt => pt['Serve outcome'] === 'Double fault');
-  const sAce  = pS.filter(pt => pt['Serve outcome'].includes('ACE'));
-  const os1In = oS.filter(pt => ['1st serve','1st serve ACE'].includes(pt['Serve outcome']));
-  const os2In = oS.filter(pt => ['2nd serve','2nd serve ACE'].includes(pt['Serve outcome']));
-  const oDFs  = oS.filter(pt => pt['Serve outcome'] === 'Double fault');
-  const oAce  = oS.filter(pt => pt['Serve outcome'].includes('ACE'));
-  const netPts   = pts.filter(pt => NET.some(s => [pt.Return,pt['Serve+1'],pt['Return+1'],pt['Serve+2']].includes(s)));
-  const allShots = pts.flatMap(pt => [pt.Return,pt['Serve+1'],pt['Return+1'],pt['Serve+2']].filter(Boolean));
-  const pSD = pS.filter(pt => pt.Side==='Deuce'), pSA = pS.filter(pt => pt.Side==='Ad');
-  const pRD = oS.filter(pt => pt.Side==='Deuce'), pRA = oS.filter(pt => pt.Side==='Ad');
-  const ls  = pts.filter(pt => pt['Last shot']);
-  const ralLen = pt => [pt.Return,pt['Serve+1'],pt['Return+1'],pt['Serve+2']].filter(Boolean).length;
-  const sets  = [...new Set(pts.map(pt => pt.Set))];
-  const bySet = sets.map(sv => {
-    const sp = pts.filter(pt => pt.Set === sv);
-    return { set: sv, n: sp.length, pWon: sp.filter(pt => pt._winCode==='P').length };
+// ── Persist ───────────────────────────────────────────────────────────────────
+function sortHist(h) {
+  return h.sort((a,b) => (b.date||'').localeCompare(a.date||'') || (a.type==='evening' ? -1 : 1));
+}
+
+function persistEvening(entry) {
+  // Build a display datetime using the chosen date + current time
+  const chosenDate = getWorkloadDate();
+  const now = new Date();
+  const chosenDt = new Date(chosenDate + 'T12:00:00');
+  const dayStr = chosenDt.toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+  const timeStr = now.toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  entry.datetime = dayStr + ' · ' + timeStr;
+  const key = 'evening_' + chosenDate;
+  lss(key, JSON.stringify(entry));
+  const hist = JSON.parse(ls('history')||'[]');
+  const idx  = hist.findIndex(e => e.date === entry.date && e.type === 'evening');
+  if (idx >= 0) hist[idx] = entry; else hist.unshift(entry);
+  lss('history', JSON.stringify(sortHist(hist).slice(0,180)));
+  document.getElementById('doneEvening').style.display = 'block';
+}
+
+function persist(type, entry) {
+  lss(todayKey(type), JSON.stringify(entry));
+  const hist = JSON.parse(ls('history')||'[]');
+  const idx  = hist.findIndex(e => e.date === entry.date && e.type === type);
+  if (idx >= 0) hist[idx] = entry; else hist.unshift(entry);
+  lss('history', JSON.stringify(sortHist(hist).slice(0,180)));
+  document.getElementById(type==='morning'?'doneMorning':'doneEvening').style.display = 'block';
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function toast(msg, ms=3000) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), ms);
+}
+
+// ── History ───────────────────────────────────────────────────────────────────
+function renderHistory() {
+  const hist = sortHist(JSON.parse(ls('history')||'[]'));
+  const el   = document.getElementById('historyList');
+  if (!hist.length) { el.innerHTML='<div class="empty-state">No entries yet.<br>Submit morning and evening data to see your history.</div>'; return; }
+
+  // Build 7-day workload chart
+  const today = new Date();
+  const days7 = Array.from({length:7}, (_,i) => {
+    const d = new Date(today); d.setDate(d.getDate() - (6-i));
+    return localISO(d);
   });
-  return { n, pWon: pts.filter(pt=>pt._winCode==='P').length, pS, oS, s1In, s2In, sDFs, sAce, os1In, os2In, oDFs, oAce, netPts, allShots, pSD, pSA, pRD, pRA, ls, bySet, ralLen };
-}
+  const eveningByDate = {};
+  hist.forEach(e => { if (e.type==='evening') eveningByDate[e.date] = e; });
+  const workloads = days7.map(d => eveningByDate[d]?.total ?? null);
+  const dayLabels = days7.map(d => { const dt=new Date(d + 'T12:00:00'); return ['Su','Mo','Tu','We','Th','Fr','Sa'][dt.getDay()]; });
+  const maxW = Math.max(...workloads.filter(v=>v!==null), 100);
 
-function getCoachingPoint(pts, playerName) {
-  const serving = pts.filter(p => p._serverCode === 'P');
-  const returning = pts.filter(p => p._serverCode === 'O');
-
-  // DF check
-  const dfs = serving.filter(p => p['Serve outcome'] === 'Double fault').length;
-  if (dfs >= 3) return `${dfs} double faults so far — prioritise getting the second serve in.`;
-
-  // 1st serve in %
-  const s1in = serving.filter(p => ['1st serve','1st serve ACE'].includes(p['Serve outcome'])).length;
-  const s1pct = pct(s1in, serving.length);
-  if (s1pct < 50 && serving.length >= 8)
-    return `1st serve % is only ${s1pct}% — take a little pace off to get more in.`;
-
-  // Return win check
-  const retWon = pct(returning.filter(p => p._winCode === 'P').length, returning.length);
-  const serveWon = pct(serving.filter(p => p._winCode === 'P').length, serving.length);
-  if (retWon < 30 && returning.length >= 6)
-    return `Return win rate is ${retWon}% — look for patterns in serve direction and step up on returns.`;
-  if (serveWon < 50 && serving.length >= 6)
-    return `Serve win rate is ${serveWon}% — focus on 1st serve placement to take control of the rally.`;
-
-  // BH shot patterns
-  const bhReturns = returning.filter(p => p.Return === 'BH');
-  const bhRetWon  = pct(bhReturns.filter(p => p._winCode === 'P').length, bhReturns.length);
-  if (bhReturns.length >= 5 && bhRetWon >= 60)
-    return `BH return is working well at ${bhRetWon}% — keep targeting that side on return games.`;
-
-  const fhReturns = returning.filter(p => p.Return === 'FH');
-  const fhRetWon  = pct(fhReturns.filter(p => p._winCode === 'P').length, fhReturns.length);
-  if (fhReturns.length >= 5 && fhRetWon < 40)
-    return `FH return is winning only ${fhRetWon}% — consider switching to a more neutral BH return.`;
-
-  if (pts.length < 10) return `Keep logging — coaching insights appear after more points are recorded.`;
-  return `Good all-round performance so far. Focus on 1st serve consistency and return placement.`;
-}
-
-// ═══════════════════════════════════════════════════════
-//  END MATCH / CSV
-// ═══════════════════════════════════════════════════════
-function renderEndMatch() {
-  const n = match.points.length;
-  const won = match.points.filter(p => p._winCode === 'P').length;
-  document.getElementById('end-pts').textContent = n;
-  document.getElementById('end-sub').textContent = 'points logged';
-  document.getElementById('end-win').textContent = n > 0
-    ? `${match.playerName}: ${won} won (${pct(won,n)}%)`
-    : '';
-}
-
-function downloadCSV() {
-  const wb = XLSX.utils.book_new();
-
-  // Sheet 1: Match Info — one header row + one data row
-  const ws1 = XLSX.utils.aoa_to_sheet([
-    ['Player','Opponent','Date','Tournament','Surface','Environment','Player hand','Opponent hand'],
-    [match.playerName, match.opp, match.date, match.tourn, match.surface, match.env,
-     match.playerHand==='L'?'Left':'Right', match.oppHand==='L'?'Left':'Right']
-  ]);
-  XLSX.utils.book_append_sheet(wb, ws1, 'Match Info');
-
-  // Sheet 2: Point-by-point data (unchanged columns)
-  const cols = ['Set','Server','Side','Serve outcome','1st serve fault','Double fault',
-                'ACE direction','Return','Serve+1','Return+1','Serve+2','Winner','Last shot',
-                '2nd last shot','Where'];
-  const rows = match.points.map(pt => cols.map(c => pt[c] || ''));
-  const ws2 = XLSX.utils.aoa_to_sheet([cols, ...rows]);
-  XLSX.utils.book_append_sheet(wb, ws2, 'Points');
-
-  const fname = `${match.playerName}_${match.opp}_${match.date || match.tourn || 'match'}.xlsx`
-    .replace(/[^a-z0-9_\-\.]/gi,'_');
-  XLSX.writeFile(wb, fname);
-}
-
-function downloadStats() {
-  const s = computeStats();
-  if (!s) { alert('No points logged yet.'); return; }
-  const { n, pWon, pS, oS, s1In, s2In, sDFs, sAce, os1In, os2In, oDFs, oAce,
-          netPts, allShots, pSD, pSA, pRD, pRA, ls, bySet, ralLen } = s;
-  const P = match.playerName || 'Player';
-  const O = match.opp || 'Opponent';
-  const oWon = n - pWon;
-
-  const wb = XLSX.utils.book_new();
-  const makeSheet = rows => XLSX.utils.aoa_to_sheet(rows);
-  const pH = match.playerHand || 'R';
-  const oH = match.oppHand || 'R';
-  // Deuce/Ad BH side labels based on handedness
-  // Right-hander: BH on Ad side when serving, BH on T-side (Deuce=T=BH) when returning
-  const pServeBHSide = pH==='R' ? 'Ad' : 'Deuce';
-  const pServeFHSide = pH==='R' ? 'Deuce' : 'Ad';
-  const oRetBHSide   = oH==='R' ? 'Deuce (T→BH)' : 'Ad (T→BH)';
-
-  // ── Sheet 1: Match Info ──
-  const ws1 = makeSheet([
-    ['Field','Value'],
-    ['Player', P],
-    ['Player handedness', pH==='L'?'Left':'Right'],
-    ['Opponent', O],
-    ['Opponent handedness', oH==='L'?'Left':'Right'],
-    ['Date', match.date],
-    ['Tournament', match.tourn],
-    ['Surface', match.surface],
-    ['Environment', match.env],
-    ['Total points', n],
-  ]);
-  XLSX.utils.book_append_sheet(wb, ws1, 'Match Info');
-
-  // ── Sheet 2: Summary ──
-  const ws2 = makeSheet([
-    ['Stat', P, O],
-    ['Points won', pWon, oWon],
-    ['Points won %', pct(pWon,n), pct(oWon,n)],
-    ['Serve games played', pS.length, oS.length],
-    ['Serve win %', pct(pS.filter(pt=>pt._winCode==='P').length, pS.length), pct(oS.filter(pt=>pt._winCode==='O').length, oS.length)],
-    ['Return win %', pct(oS.filter(pt=>pt._winCode==='P').length, oS.length), pct(pS.filter(pt=>pt._winCode==='O').length, pS.length)],
-  ]);
-  XLSX.utils.book_append_sheet(wb, ws2, 'Summary');
-
-  // ── Sheet 3: Serve Stats ──
-  const s1WonP = s1In.filter(pt=>pt._winCode==='P').length;
-  const s2WonP = s2In.filter(pt=>pt._winCode==='P').length;
-  const os1WonO = os1In.filter(pt=>pt._winCode==='O').length;
-  const os2WonO = os2In.filter(pt=>pt._winCode==='O').length;
-  const pSDWon = pSD.filter(pt=>pt._winCode==='P').length;
-  const pSAWon = pSA.filter(pt=>pt._winCode==='P').length;
-  const oSDWon = oS.filter(pt=>pt.Side==='Deuce'&&pt._winCode==='O').length;
-  const oSAWon = oS.filter(pt=>pt.Side==='Ad'&&pt._winCode==='O').length;
-  const ws3 = makeSheet([
-    ['Stat', P, O],
-    ['1st serve in', s1In.length, os1In.length],
-    ['1st serve in %', pct(s1In.length, pS.length), pct(os1In.length, oS.length)],
-    ['1st serve win %', pct(s1WonP, s1In.length), pct(os1WonO, os1In.length)],
-    ['2nd serve in', s2In.length, os2In.length],
-    ['2nd serve win %', pct(s2WonP, s2In.length), pct(os2WonO, os2In.length)],
-    ['Overall serve win %', pct(pS.filter(pt=>pt._winCode==='P').length, pS.length), pct(oS.filter(pt=>pt._winCode==='O').length, oS.length)],
-    ['Aces', sAce.length, oAce.length],
-    ['Double faults', sDFs.length, oDFs.length],
-    [`Deuce serve win % (${pH==='R'?'FH side':'BH side'})`, pct(pSDWon, pSD.length), pct(oSDWon, oS.filter(pt=>pt.Side==='Deuce').length)],
-    [`Ad serve win % (${pH==='R'?'BH side':'FH side'})`, pct(pSAWon, pSA.length), pct(oSAWon, oS.filter(pt=>pt.Side==='Ad').length)],
-  ]);
-  XLSX.utils.book_append_sheet(wb, ws3, 'Serve Stats');
-
-  // ── Sheet 4: Return Stats ──
-  const fhRet = oS.filter(pt=>pt.Return==='FH');
-  const bhRet = oS.filter(pt=>pt.Return==='BH');
-  const fhRetWon = fhRet.filter(pt=>pt._winCode==='P').length;
-  const bhRetWon = bhRet.filter(pt=>pt._winCode==='P').length;
-  const pRDWon = pRD.filter(pt=>pt._winCode==='P').length;
-  const pRAWon = pRA.filter(pt=>pt._winCode==='P').length;
-  const oRet = pS.filter(pt=>pt.Return);
-  const oFHRet = pS.filter(pt=>pt.Return==='FH');
-  const oBHRet = pS.filter(pt=>pt.Return==='BH');
-  const oFHRetWon = oFHRet.filter(pt=>pt._winCode==='O').length;
-  const oBHRetWon = oBHRet.filter(pt=>pt._winCode==='O').length;
-  const ws4 = makeSheet([
-    ['Stat', P, O],
-    ['Return points played', oS.length, pS.length],
-    ['Return win %', pct(oS.filter(pt=>pt._winCode==='P').length, oS.length), pct(pS.filter(pt=>pt._winCode==='O').length, pS.length)],
-    ['vs 1st serve win %', pct(os1In.filter(pt=>pt._winCode==='P').length, os1In.length), pct(s1In.filter(pt=>pt._winCode==='O').length, s1In.length)],
-    ['vs 2nd serve win %', pct(os2In.filter(pt=>pt._winCode==='P').length, os2In.length), pct(s2In.filter(pt=>pt._winCode==='O').length, s2In.length)],
-    ['FH return used', fhRet.length, oFHRet.length],
-    ['FH return win %', pct(fhRetWon, fhRet.length), pct(oFHRetWon, oFHRet.length)],
-    ['BH return used', bhRet.length, oBHRet.length],
-    ['BH return win %', pct(bhRetWon, bhRet.length), pct(oBHRetWon, oBHRet.length)],
-    ['Deuce return win %', pct(pRDWon, pRD.length), ''],
-    ['Ad return win %', pct(pRAWon, pRA.length), ''],
-  ]);
-  XLSX.utils.book_append_sheet(wb, ws4, 'Return Stats');
-
-  // ── Sheet 5: Patterns of Play ──
-  const FH_SH = ['FH','FH slice'], BH_SH = ['BH','BH slice'], NET_SH = ['FH volley','BH volley','Smash'];
-  const fhCount = allShots.filter(sh=>FH_SH.includes(sh)).length;
-  const bhCount = allShots.filter(sh=>BH_SH.includes(sh)).length;
-  const netCount = allShots.filter(sh=>NET_SH.includes(sh)).length;
-  const netWon = netPts.filter(pt=>pt._winCode==='P').length;
-  const sp1pts = pS.filter(pt=>pt['Serve+1']);
-  const rp1pts = oS.filter(pt=>pt['Return+1']);
-  const countBy = (arr, key) => arr.reduce((a,i)=>{const k=i[key]||'—';a[k]=(a[k]||0)+1;return a;},{});
-  const sp1Map = countBy(sp1pts,'Serve+1');
-  const rp1Map = countBy(rp1pts,'Return+1');
-  const serveEnd   = pS.filter(pt=>ralLen(pt)===0).length;
-  const shortRally = pS.filter(pt=>ralLen(pt)>=1&&ralLen(pt)<=2).length;
-  const longRally  = pS.filter(pt=>ralLen(pt)>=3).length;
-  const popRows = [
-    ['Stat', 'Count', '%'],
-    ['Total rally shots logged', allShots.length, ''],
-    ['Forehand shots', fhCount, pct(fhCount, allShots.length)],
-    ['Backhand shots', bhCount, pct(bhCount, allShots.length)],
-    ['Net shots (volley/smash)', netCount, pct(netCount, allShots.length)],
-    ['','',''],
-    ['Net approach points', netPts.length, pct(netPts.length, n)],
-    ['Net approach win %', netWon, pct(netWon, netPts.length)],
-    ['','',''],
-    ['Rally length (serve games)','',''],
-    ['Serve ends it (0 rally shots)', serveEnd, pct(serveEnd, pS.length)],
-    ['Short rally (1-2 shots)', shortRally, pct(shortRally, pS.length)],
-    ['Extended (3-4 shots)', longRally, pct(longRally, pS.length)],
-    ['','',''],
-    ['Serve+1 patterns ('+P+')','',''],
-    ...Object.entries(sp1Map).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[k,v,pct(v,sp1pts.length)]),
-    ['','',''],
-    ['Return+1 patterns ('+P+')','',''],
-    ...Object.entries(rp1Map).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[k,v,pct(v,rp1pts.length)]),
-  ];
-  XLSX.utils.book_append_sheet(wb, makeSheet(popRows), 'Patterns of Play');
-
-  // ── Sheet 6: Last Shot Analysis ──
-  const lsAll = match.points.filter(pt=>pt['Last shot']);
-  const lsWin = lsAll.filter(pt=>pt['Last shot'].includes('winner')&&pt._winCode==='P');
-  const lsOppErr = lsAll.filter(pt=>pt['Last shot'].includes('error')&&pt._winCode==='P');
-  const lsOppWin = lsAll.filter(pt=>pt['Last shot'].includes('winner')&&pt._winCode==='O');
-  const lsPErr = lsAll.filter(pt=>pt['Last shot'].includes('error')&&pt._winCode==='O');
-  const cb2 = (arr,key) => arr.reduce((a,i)=>{const k=i[key]||'—';a[k]=(a[k]||0)+1;return a;},{});
-  const lsRows = [
-    ['Category','Shot','Count'],
-    ...Object.entries(cb2(lsWin,'Last shot')).map(([k,v])=>[P+' winner',k,v]),
-    ...Object.entries(cb2(lsOppErr,'Last shot')).map(([k,v])=>[O+' error → '+P+' wins',k,v]),
-    ...Object.entries(cb2(lsOppWin,'Last shot')).map(([k,v])=>[O+' winner',k,v]),
-    ...Object.entries(cb2(lsPErr,'Last shot')).map(([k,v])=>[P+' error',k,v]),
-  ];
-  XLSX.utils.book_append_sheet(wb, makeSheet(lsRows), 'Last Shot Analysis');
-
-  // ── Sheet 7: Score Analysis ──
-  const scoreData = computeScoreColumns(match.points, P, O);
-  if (scoreData.length) {
-    const sitTally = {}; // sit -> {won, total}
-    const bpConvert = {won:0, total:0};
-    const bpSave    = {won:0, total:0};
-    for (let i = 0; i < match.points.length; i++) {
-      const pt = match.points[i];
-      const sc = scoreData[i];
-      if (!sc || sc.Mode !== 'NORMAL') continue;
-      const isServerP = sc.ServerIsPlayer;
-      const playerWon = pt._winCode === 'P';
-      let sit = sc.ScoreSituation;
-      if (!isServerP) {
-        if (sit === 'Break point') sit = 'Break point (opp BP)';
-        else if (sit === 'Ad Server') sit = 'Ad Opp';
-        else if (sit === 'Ad Returner') sit = 'Ad Player';
-      }
-      if (!sitTally[sit]) sitTally[sit] = {won:0, total:0};
-      sitTally[sit].total++;
-      if (playerWon) sitTally[sit].won++;
-      if (isServerP && sc.IsBreakPoint) {
-        bpSave.total++; if (playerWon) bpSave.won++;
-      }
-      if (!isServerP && sc.IsBreakPoint) {
-        bpConvert.total++; if (playerWon) bpConvert.won++;
-      }
-    }
-    const scRows = [
-      ['Score Situation', P+' won', 'Total', P+' win %'],
-      bpConvert.total ? ['BP Converted (returning)', bpConvert.won, bpConvert.total, pct(bpConvert.won, bpConvert.total)] : null,
-      bpSave.total    ? ['BP Saved (serving)',        bpSave.won,    bpSave.total,    pct(bpSave.won, bpSave.total)]       : null,
-      ['','','',''],
-      ...Object.entries(sitTally)
-        .sort((a,b) => b[1].total - a[1].total)
-        .map(([sit,{won,total}]) => [sit, won, total, pct(won, total)]),
-    ].filter(Boolean);
-    XLSX.utils.book_append_sheet(wb, makeSheet(scRows), 'Score Analysis');
+  function sparkBar(values, maxVal, barColor) {
+    const w=40, gap=4, h=60, n=values.length;
+    const vbW = n*(w+gap)-gap;
+    const bars = values.map((v,i) => {
+      const x = i*(w+gap);
+      if (v===null) return `<rect x="${x}" y="0" width="${w}" height="${h}" rx="4" fill="var(--border)" opacity="0.4"/>`;
+      const barH = Math.max(4, Math.round((v/maxVal)*h));
+      return `<rect x="${x}" y="${h-barH}" width="${w}" height="${barH}" rx="4" fill="${barColor}"/>`;
+    }).join('');
+    return `<svg viewBox="0 0 ${vbW} ${h}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:70px;display:block">${bars}</svg>`;
   }
 
-  // ── Sheet 8: Direction Analysis ──
-  const dirTally2 = {
-    pServe: { Wide:{won:0,total:0}, T:{won:0,total:0} },
-    oServe: { Wide:{won:0,total:0}, T:{won:0,total:0} },
-  };
-  for (const pt of match.points) {
-    const isServerP = pt._serverCode === 'P';
-    let dir = '';
-    if (pt['Serve outcome'].includes('ACE') && pt['Where'] && ['Wide','T'].includes(pt['Where'])) {
-      dir = pt['Where'];
-    } else if (pt.Return) {
-      const receiverHand = isServerP ? (match.oppHand||'R') : (match.playerHand||'R');
-      dir = serveDirection(pt.Side, pt.Return, receiverHand);
-    }
-    if (!dir) continue;
-    const key = isServerP ? 'pServe' : 'oServe';
-    dirTally2[key][dir].total++;
-    if (pt._winCode === 'P') dirTally2[key][dir].won++;
-  }
-  const dirRows = [
-    ['Serve Direction', 'Points', P+' won', P+' win%'],
-    [`${P} Wide`, dirTally2.pServe.Wide.total, dirTally2.pServe.Wide.won, pct(dirTally2.pServe.Wide.won, dirTally2.pServe.Wide.total)],
-    [`${P} T`,    dirTally2.pServe.T.total,    dirTally2.pServe.T.won,    pct(dirTally2.pServe.T.won,    dirTally2.pServe.T.total)],
-    ['','','',''],
-    [`${O} Wide (${P} returning)`, dirTally2.oServe.Wide.total, dirTally2.oServe.Wide.won, pct(dirTally2.oServe.Wide.won, dirTally2.oServe.Wide.total)],
-    [`${O} T (${P} returning)`,    dirTally2.oServe.T.total,    dirTally2.oServe.T.won,    pct(dirTally2.oServe.T.won,    dirTally2.oServe.T.total)],
-  ];
-  XLSX.utils.book_append_sheet(wb, makeSheet(dirRows), 'Direction Analysis');
+  const labelsHTML = `<div style="display:flex;gap:4px;margin-top:4px">${dayLabels.map(l=>`<div style="flex:1;text-align:center;font-size:10px;color:var(--sub);font-weight:600">${l}</div>`).join('')}</div>`;
 
-  // ── Sheet 9: Set Breakdown ──
-  if (bySet.length > 0) {
-    const setRows = [
-      ['Set','Points played',P+' won',P+' win %',O+' won',O+' win %'],
-      ...bySet.map(sv=>[sv.set, sv.n, sv.pWon, pct(sv.pWon,sv.n), sv.n-sv.pWon, pct(sv.n-sv.pWon,sv.n)]),
-    ];
-    XLSX.utils.book_append_sheet(wb, makeSheet(setRows), 'Set Breakdown');
-  }
+  const chartHTML = `
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title">7-day Training Load (AU)</div>
+      ${sparkBar(workloads, maxW, 'var(--green)')}
+      ${labelsHTML}
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--sub);margin-top:6px">
+        <span>Daily total AU</span><span>Grey = no data</span>
+      </div>
+    </div>`;
 
-  const fname = `${P}_${O}_${match.date || match.tourn || 'match'}_STATS.xlsx`
-    .replace(/[^a-z0-9_\-\.]/gi,'_');
-  XLSX.writeFile(wb, fname);
+  const entriesHTML = hist.slice(0,20).map(e => {
+    if (e.type === 'morning') return `
+      <div class="history-item">
+        <div class="hi-date">🌅 ${e.datetime}${e.name?' · '+e.name:''}</div>
+        <div class="hi-detail">${e.total}/28 &nbsp;·&nbsp; ${e.pct !== undefined ? e.pct : Math.round(((28-e.total)/24)*100)}% &nbsp;·&nbsp; 😴${e.sleep} 😵${e.fatigue} 😤${e.stress} 💪${e.soreness}</div>
+        ${e.notes?`<div class="hi-notes">"${esc(e.notes)}"</div>`:''}
+      </div>`;
+    else return `
+      <div class="history-item">
+        <div class="hi-date">🏃 ${e.datetime}${e.name?' · '+e.name:''}</div>
+        <div class="hi-load">Total: ${(e.total||0).toLocaleString()} AU</div>
+        ${e.notes?`<div class="hi-notes">"${esc(e.notes)}"</div>`:''}
+      </div>`;
+  }).join('');
+
+  el.innerHTML = chartHTML + entriesHTML;
 }
+
+// ── Clear morning fields ─────────────────────────────────────────────────────
+function clearMorning() {
+  ['sleep','fatigue','stress','soreness'].forEach(key => {
+    sc[key] = 4;
+    const el = document.getElementById('s-'+key);
+    el.value = 4;
+    el.style.setProperty('--pct', ((4-1)/6*100).toFixed(1)+'%');
+    el.style.setProperty('--track-fill', 'var(--navy)');
+  });
+  document.getElementById('morningNotes').value = '';
+  document.getElementById('doneMorning').style.display = 'none';
+  lsd(todayKey('morning'));
+  toast('Fields cleared');
+}
+
+// ── Settings ──────────────────────────────────────────────────────────────────
+function loadSettings() {
+  const name = ls('athleteName');
+  document.getElementById('nameDisplay').textContent = name||'Not set';
+  if (name) document.getElementById('headerName').textContent = name;
+  document.getElementById('waDisplay').textContent = ls('waNumber')||'Not set';
+}
+
+function refreshSettings() { loadSettings(); }
+
+function setName() {
+  const v = prompt('Enter your name:', ls('athleteName')||'');
+  if (v&&v.trim()) {
+    lss('athleteName', v.trim());
+    document.getElementById('nameDisplay').textContent = v.trim();
+    document.getElementById('headerName').textContent = v.trim();
+    toast('Name saved');
+  }
+}
+
+function setWA() {
+  const v = prompt("Coach's WhatsApp number (international format, no + or spaces):\ne.g. 447911123456", ls('waNumber')||'');
+  if (v!==null) { const c=v.replace(/\D/g,''); lss('waNumber',c); document.getElementById('waDisplay').textContent=c||'Not set'; toast('Number saved'); }
+}
+
+function clearData() {
+  if (!confirm('Clear all saved entries?')) return;
+  Object.keys(localStorage).filter(k=>k.startsWith('morning_')||k.startsWith('evening_')||k==='history').forEach(k=>lsd(k));
+  toast('History cleared');
+}
+
+// ── Reset morning fields ─────────────────────────────────────────────────────
+function resetMorning() {
+  ['sleep','fatigue','stress','soreness'].forEach(key => {
+    document.getElementById('s-'+key).value = 4;
+    slide(key, 4, true);
+  });
+  document.getElementById('morningNotes').value = '';
+  document.getElementById('doneMorning').style.display = 'none';
+  lsd(todayKey('morning'));
+}
+
+// ── Clear evening fields ─────────────────────────────────────────────────────
+function clearEvening(confirm_first) {
+  if (confirm_first && !confirm('Clear all session data?')) return;
+  ['ms1','ms2','md','oc1','oc2','occ','ag','pw','st','bm','ae','ot'].forEach(key => {
+    document.getElementById('t-'+key).value = '';
+    document.getElementById('r-'+key).value = '';
+    document.getElementById('au-'+key).textContent = '— AU';
+  });
+  const _wdClear = document.getElementById('workloadDate');
+  if (_wdClear) _wdClear.value = localISO();
+  document.getElementById('eveningNotes').value = '';
+  document.getElementById('totalAU').textContent = '0 AU';
+  document.getElementById('doneEvening').style.display = 'none';
+  lsd(todayKey('evening'));
+  toast('Fields cleared');
+}
+
 </script>
 
-</body></html>
+<!-- Borg Scale Modal -->
+<div id="borgModal" class="modal-overlay" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Borg CR10 RPE Scale</div>
+    <div class="modal-sub">Rate how hard each session felt.<br><strong style="color:var(--green)">Important: 3 = Moderate — not 5.</strong></div>
+    <div class="borg-row borg-0"><div class="borg-num" style="color:#aaa">0</div><div><div class="borg-desc">Nothing at all</div></div></div>
+    <div class="borg-row borg-1"><div class="borg-num" style="color:var(--green)">1</div><div><div class="borg-desc">Very light</div></div></div>
+    <div class="borg-row borg-2"><div class="borg-num" style="color:var(--green)">2</div><div><div class="borg-desc">Light</div></div></div>
+    <div class="borg-row borg-3"><div class="borg-num" style="color:var(--green);font-weight:900">3</div><div><div class="borg-desc" style="color:var(--green)">Moderate</div></div></div>
+    <div class="borg-row borg-4"><div class="borg-num" style="color:var(--amber)">4</div><div><div class="borg-desc">Somewhat hard</div></div></div>
+    <div class="borg-row borg-5"><div class="borg-num" style="color:var(--amber)">5</div><div><div class="borg-desc">Hard</div></div></div>
+    <div class="borg-row borg-6"><div class="borg-num" style="color:var(--amber)">6</div><div><div class="borg-desc">Hard+</div></div></div>
+    <div class="borg-row borg-7"><div class="borg-num" style="color:var(--red)">7</div><div><div class="borg-desc">Very hard</div></div></div>
+    <div class="borg-row borg-8"><div class="borg-num" style="color:var(--red)">8</div><div><div class="borg-desc">Very hard+</div></div></div>
+    <div class="borg-row borg-9"><div class="borg-num" style="color:var(--red)">9</div><div><div class="borg-desc">Extremely hard</div></div></div>
+    <div class="borg-row borg-10"><div class="borg-num" style="color:var(--red);font-weight:900">10</div><div><div class="borg-desc" style="color:var(--red);font-weight:800">Maximal</div></div></div>
+    <button class="btn-close-modal" onclick="document.getElementById('borgModal').style.display='none'">Close</button>
+  </div>
+</div>
+</body>
+</html>
